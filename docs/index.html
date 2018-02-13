@@ -1,0 +1,672 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>M-SALT API 0.1 Documentation &mdash; M-SALT API 0.1.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/my_theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="M-SALT API 0.1.1 documentation" href="#"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> M-SALT API
+          
+
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">M-SALT API 0.1 Documentation</a><ul>
+<li><a class="reference internal" href="#concepts">Concepts</a><ul>
+<li><a class="reference internal" href="#transliterations">Transliterations</a></li>
+<li><a class="reference internal" href="#embedded-html">Embedded HTML</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#endpoints">Endpoints</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">M-SALT API</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>M-SALT API 0.1 Documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="m-salt-api-0-1-documentation">
+<span id="contents"></span><h1>M-SALT API 0.1 Documentation<a class="headerlink" href="#m-salt-api-0-1-documentation" title="Permalink to this headline">¶</a></h1>
+<p>An API for consulting dictionaries in Sanskrit and Pāli and maybe other ancient
+South Asian languages.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This API is not yet finalized!</p>
+</div>
+<div class="section" id="concepts">
+<h2>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">¶</a></h2>
+<p>This API returns <strong>articles</strong> and <strong>headwords</strong>.</p>
+<p>An article is the atomic unit of content of the dictionary.  An article can have
+one or more headwords.</p>
+<div align="center" class="align-center"><img src="_images/graphviz-8c37141189949387fd02b7db790086a2940e1fa4.png" alt="strict digraph G {
+  headword1-&gt;article;
+  headword2-&gt;article;
+  headword3-&gt;article;
+  &quot;...&quot;-&gt;article;
+}" />
+</div>
+<p>The article may be available in many different formats, eg. as fully marked up
+TEI, or as a series of scanned images.</p>
+<p>The article may also be available in Devanagari or in a latin transliteration,
+eg. SLP1 or Harvard-Kyoto.</p>
+<p>The relation between articles and headwords is 1:N.  A headword cannot point to
+more than one article but more than one headword may point to one article.</p>
+<p>The API is designed to allow a client to search multiple dictionaries at once.</p>
+<p>The API can be mounted on an arbitrary root URL. Examples:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">api</span><span class="o">.</span><span class="n">cpd</span><span class="o">.</span><span class="n">uni</span><span class="o">-</span><span class="n">koeln</span><span class="o">.</span><span class="n">de</span><span class="o">/</span>
+<span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">api</span><span class="o">.</span><span class="n">cpd</span><span class="o">.</span><span class="n">uni</span><span class="o">-</span><span class="n">koeln</span><span class="o">.</span><span class="n">de</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span>
+<span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">uni</span><span class="o">-</span><span class="n">koeln</span><span class="o">.</span><span class="n">de</span><span class="o">/</span><span class="n">cpd</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span>
+<span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">cpd</span><span class="o">.</span><span class="n">uni</span><span class="o">-</span><span class="n">koeln</span><span class="o">.</span><span class="n">de</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="mi">1</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>It is strongly recommended to have an API version indicator in the mount point
+to allow easier upgrading by running two versions concurrently.</p>
+<p>All responses of this API are in JSON format.  All endpoints ending in “/”
+(except the root endpoint) return JSON arrays. All other endpoints return a JSON
+object.</p>
+<div class="section" id="transliterations">
+<span id="t13n"></span><h3>Transliterations<a class="headerlink" href="#transliterations" title="Permalink to this headline">¶</a></h3>
+<p>Transliteration (t13n) is the act of representing Devanagari script in Latin
+characters.</p>
+<p>The API supports following transliteration schemes:</p>
+<blockquote>
+<div><ul class="simple">
+<li>iso:  ISO 15919      <a class="reference external" href="https://en.wikipedia.org/wiki/ISO_15919">https://en.wikipedia.org/wiki/ISO_15919</a></li>
+<li>hk:   Harvard-Kyoto  <a class="reference external" href="https://en.wikipedia.org/wiki/Harvard-Kyoto">https://en.wikipedia.org/wiki/Harvard-Kyoto</a></li>
+<li>slp1: SLP1           <a class="reference external" href="https://en.wikipedia.org/wiki/SLP1">https://en.wikipedia.org/wiki/SLP1</a></li>
+<li>deva: Devanagari     (no transliteration)</li>
+</ul>
+</div></blockquote>
+<p>Different dictionaries may have adopted different transliteraton schemes.  The
+client needs to know which transliterations the server offers for articles and
+which it accepts for queries.</p>
+<p>See also: <a class="reference external" href="https://en.wikipedia.org/wiki/Devanagari_transliteration">https://en.wikipedia.org/wiki/Devanagari_transliteration</a></p>
+</div>
+<div class="section" id="embedded-html">
+<span id="embed"></span><h3>Embedded HTML<a class="headerlink" href="#embedded-html" title="Permalink to this headline">¶</a></h3>
+<p>The client using the API may wish to display the HTML of the article embedded in
+a page of the client’s choice.  To make this seemless the HTML must be sanitized
+by the client and the CSS needed for correct display of your HTML should be
+provided by the <a class="reference internal" href="#get--" title="GET /"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/</span></code></a> endpoint.</p>
+<p>Sanitized HTML in articles may contain only the tags: div, p, span, i, b, em,
+strong, sup, sub, br, all with an optional class attribute.</p>
+<p>Sanitized HTML in headwords may contain only the tags: i, sup, sub, without
+attributes.  This is to allow the client to merge the headwords it got from
+different dictionaries in a visually pleasing way.</p>
+</div>
+</div>
+<div class="section" id="endpoints">
+<h2>Endpoints<a class="headerlink" href="#endpoints" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--">
+<code class="descname">GET </code><code class="descname">/</code><a class="headerlink" href="#get--" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get information about the dictionary.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">api.cpd.uni-koeln.de</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;short_name&quot;</span><span class="p">:</span> <span class="s2">&quot;CPD&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;A Critical P\u0101li Dictionary&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;css&quot;</span><span class="p">:</span> <span class="s2">&quot;span.smalltext { font-size: smaller }&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;t13n_query&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="s2">&quot;slp1&quot;</span><span class="p">,</span> <span class="s2">&quot;deva&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Response Headers:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – application/json</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>short_name</strong> (<em>string</em>) – A siglum or short name of the dictionary.
+Max. 10 unicode characters.</li>
+<li><strong>name</strong> (<em>string</em>) – A longer name of the dictionary.
+Max. 80 unicode characters.</li>
+<li><strong>css</strong> (<em>string</em>) – Any CSS needed to display the HTML version of your
+articles. See <cite>embedded HTML &lt;embed&gt;</cite>.</li>
+<li><strong>css_url</strong> (<em>url</em>) – Optional.  Alternatively an URL to your CSS sheet.</li>
+<li><strong>t13n_query</strong> (<em>array</em>) – The <a class="reference internal" href="#t13n"><span class="std std-ref">transliterations</span></a> supported by
+the server for queries.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--headwords-">
+<code class="descname">GET </code><code class="descname">/headwords/</code><a class="headerlink" href="#get--headwords-" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of headwords.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/headwords/?q=ahimsa*&amp;t13n=slp1&amp;limit=5</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">api.cpd.uni-koeln.de</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+  <span class="p">{</span><span class="nt">&quot;article_url&quot;</span><span class="p">:</span> <span class="s2">&quot;article/11411&quot;</span><span class="p">,</span> <span class="nt">&quot;headword&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sa&quot;</span><span class="p">,</span>   <span class="nt">&quot;t13n&quot;</span><span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;headword/43681&quot;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nt">&quot;article_url&quot;</span><span class="p">:</span> <span class="s2">&quot;article/11412&quot;</span><span class="p">,</span> <span class="nt">&quot;headword&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sa&quot;</span><span class="p">,</span>   <span class="nt">&quot;t13n&quot;</span><span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;headword/43685&quot;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nt">&quot;article_url&quot;</span><span class="p">:</span> <span class="s2">&quot;article/11413&quot;</span><span class="p">,</span> <span class="nt">&quot;headword&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41saka&quot;</span><span class="p">,</span> <span class="nt">&quot;t13n&quot;</span><span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;headword/43687&quot;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nt">&quot;article_url&quot;</span><span class="p">:</span> <span class="s2">&quot;article/11412&quot;</span><span class="p">,</span> <span class="nt">&quot;headword&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sat&quot;</span><span class="p">,</span>  <span class="nt">&quot;t13n&quot;</span><span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;headword/43683&quot;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nt">&quot;article_url&quot;</span><span class="p">:</span> <span class="s2">&quot;article/11419&quot;</span><span class="p">,</span> <span class="nt">&quot;headword&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sana&quot;</span><span class="p">,</span> <span class="nt">&quot;t13n&quot;</span><span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;headword/43698&quot;</span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>q</strong> – query. Restrict the result to headwords matching this query.</li>
+<li><strong>t13n</strong> – <a class="reference internal" href="#t13n"><span class="std std-ref">transliteration</span></a> scheme of the <cite>q</cite>
+parameter. Default “iso”.</li>
+<li><strong>limit</strong> – limit number. Default 100.</li>
+<li><strong>offset</strong> – offset number. Default 0.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Response Headers:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – application/json</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>headword</strong> (<em>string</em>) – the headword. <a class="reference internal" href="#embed"><span class="std std-ref">Some HTML</span></a> allowed.</li>
+<li><strong>url</strong> (<em>url</em>) – the headword endpoint url relative to the API root.</li>
+<li><strong>article_url</strong> (<em>url</em>) – the article endpoint url of the article relative to the API root.</li>
+<li><strong>t13n</strong> (<em>string</em>) – The transliteration applied to the headword. Default “iso”.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>If <cite>q</cite> is not specified, retrieve a list of all headwords.</p>
+<p><cite>q</cite> is allowed to contain globs, eg. the character “*” stands for any
+sequence of characters and the character “?” stands for any single character.</p>
+<p>The <cite>t13n</cite> parameter on the request is the <a class="reference internal" href="#t13n"><span class="std std-ref">transliteration</span></a> used
+in the <cite>q</cite> parameter.  The transliteration used in the response may be
+different and is indicated in the response’s <cite>t13n</cite> parameter.</p>
+<p>See also: the <a class="reference internal" href="#get--" title="GET /"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/</span></code></a> endpoint.</p>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--headwords-(id)">
+<code class="descname">GET </code><code class="descname">/headwords/</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#get--headwords-(id)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get one headword.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/headwords/43704</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">api.cpd.uni-koeln.de</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;article_url&quot;</span><span class="p">:</span> <span class="s2">&quot;article/11421&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;headword&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41s\u0101&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;t13n&quot;</span><span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;headword/43704&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>id</strong> – The headword id. See: <a class="reference internal" href="#get--articles-(id)" title="GET /articles/(id)"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/articles/(id)</span></code></a>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Response Headers:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – application/json</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – headword not found</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>headword</strong> (<em>string</em>) – the headword. <a class="reference internal" href="#embed"><span class="std std-ref">Some HTML</span></a> allowed.</li>
+<li><strong>url</strong> (<em>url</em>) – the headword endpoint url relative to the API root.</li>
+<li><strong>article_url</strong> (<em>url</em>) – the article endpoint url of the article relative to the API root.</li>
+<li><strong>t13n</strong> (<em>string</em>) – The transliteration applied to the headword. Default “iso”.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--headwords-(id)-context-">
+<code class="descname">GET </code><code class="descname">/headwords/</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><code class="descname">/context/</code><a class="headerlink" href="#get--headwords-(id)-context-" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get some headwords that alphabetically surround the article’s headword.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/headwords/43704/context/?limit=2</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">api.cpd.uni-koeln.de</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+  <span class="p">{</span><span class="nt">&quot;article_url&quot;</span><span class="p">:</span> <span class="s2">&quot;article/11420&quot;</span><span class="p">,</span> <span class="nt">&quot;headword&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41saya&quot;</span><span class="p">,</span> <span class="nt">&quot;t13n&quot;</span><span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;headword/43702&quot;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nt">&quot;article_url&quot;</span><span class="p">:</span> <span class="s2">&quot;article/11420&quot;</span><span class="p">,</span> <span class="nt">&quot;headword&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sayat&quot;</span><span class="p">,</span> <span class="nt">&quot;t13n&quot;</span><span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;headword/43700&quot;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nt">&quot;article_url&quot;</span><span class="p">:</span> <span class="s2">&quot;article/11421&quot;</span><span class="p">,</span> <span class="nt">&quot;headword&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41s\u0101&quot;</span><span class="p">,</span> <span class="nt">&quot;t13n&quot;</span><span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;headword/43704&quot;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nt">&quot;article_url&quot;</span><span class="p">:</span> <span class="s2">&quot;article/11437&quot;</span><span class="p">,</span> <span class="nt">&quot;headword&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hita&quot;</span><span class="p">,</span> <span class="nt">&quot;t13n&quot;</span><span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;headword/43733&quot;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nt">&quot;article_url&quot;</span><span class="p">:</span> <span class="s2">&quot;article/11450&quot;</span><span class="p">,</span> <span class="nt">&quot;headword&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hira\u00f1\u00f1a&quot;</span><span class="p">,</span> <span class="nt">&quot;t13n&quot;</span><span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;headword/43759&quot;</span><span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>id</strong> – The article id. See: <a class="reference internal" href="#get--articles-(id)" title="GET /articles/(id)"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/articles/(id)</span></code></a>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>limit</strong> – limit number of returned headwords. The call returns limit
+headwords before the headword, the headword, and limit
+headwords after the headword, totalling (limit * 2 + 1)
+headwords.  Default 10.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Response Headers:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – application/json</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – article not found</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>headword</strong> (<em>string</em>) – the headword. <a class="reference internal" href="#embed"><span class="std std-ref">Some HTML</span></a> allowed.</li>
+<li><strong>url</strong> (<em>url</em>) – the headword endpoint url relative to the API root.</li>
+<li><strong>article_url</strong> (<em>url</em>) – the article endpoint url of the article relative to the API root.</li>
+<li><strong>t13n</strong> (<em>string</em>) – The transliteration applied to the headword. Default “iso”.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--articles-(id)">
+<code class="descname">GET </code><code class="descname">/articles/</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#get--articles-(id)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an article’s content.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/articles/42</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">api.cpd.uni-koeln.de</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;mimetype&quot;</span> <span class="p">:</span> <span class="s2">&quot;text/x-html-literal&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;embeddable&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">&quot;t13n&quot;</span> <span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;text&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;div&gt;...&lt;/div&gt;&quot;</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;mimetype&quot;</span> <span class="p">:</span> <span class="s2">&quot;text/html&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;embeddable&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">&quot;canonical&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">&quot;t13n&quot;</span> <span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;root&quot;</span> <span class="p">:</span> <span class="s2">&quot;div.article&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;url&quot;</span>  <span class="p">:</span> <span class="p">[</span><span class="s2">&quot;https://...&quot;</span><span class="p">]</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;mimetype&quot;</span> <span class="p">:</span> <span class="s2">&quot;text/html&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;embeddable&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">&quot;t13n&quot;</span> <span class="p">:</span> <span class="s2">&quot;deva&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;root&quot;</span> <span class="p">:</span> <span class="s2">&quot;div.article&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;url&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="s2">&quot;https://...&quot;</span><span class="p">]</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;mimetype&quot;</span> <span class="p">:</span> <span class="s2">&quot;application/xml+tei&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;url&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="s2">&quot;https://...&quot;</span><span class="p">]</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;mimetype&quot;</span> <span class="p">:</span> <span class="s2">&quot;image/jpeg&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;embeddable&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">&quot;t13n&quot;</span> <span class="p">:</span> <span class="s2">&quot;deva&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;url&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="s2">&quot;https://img1&quot;</span><span class="p">,</span> <span class="s2">&quot;https://img2&quot;</span><span class="p">,</span> <span class="s2">&quot;...&quot;</span><span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>id</strong> – The article id. Can be any string that is convenient to the server
+and does not contain URL special characters.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Response Headers:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – application/json</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – article not found</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>mimetype</strong> (<em>string</em>) – The mimetype of the resource pointed to by <cite>url</cite>
+or contained in <cite>text</cite>.</li>
+<li><strong>embeddable</strong> (<em>boolean</em>) – Optional.  True if the resource is
+embeddable.</li>
+<li><strong>canonical</strong> (<em>boolean</em>) – Optional.  True if this url is the citeable
+canonical URL for the article.</li>
+<li><strong>t13n</strong> (<em>string</em>) – The transliteration applied to that article. Default “iso”.</li>
+<li><strong>url</strong> (<em>url</em>) – Optional. An array of urls to a series of resources
+containing the article.</li>
+<li><strong>text</strong> (<em>string</em>) – Optional. Alternatively the article can be included
+literally. <a class="reference internal" href="#embed"><span class="std std-ref">Some HTML</span></a> allowed.</li>
+<li><strong>root</strong> (<em>string</em>) – Optional. A CSS selector pointing to the element in
+the DOM that contains the article proper. Default is
+the root element of the returned resource.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The article can be served in the fashion most convenient for the server.</p>
+<p>If the article is available as HTML, then the URL to the HTML version SHOULD
+always be included.  If the article is available as image (or as a series of
+images) the URLs to all images SHOULD be provided in the correct order of
+reading.</p>
+<p>The client will pick the most appropriate resource from the list depending on
+user preferences.  The client will allow the user to cycle through a set of
+images.</p>
+<p>The <cite>mimetype</cite> parameter indicates the mimetype of the resource.  It MUST be
+the same as the content-type of the server’s response.</p>
+<p>The <cite>canonical</cite> parameter MUST be true iff the <cite>url</cite> represents the
+canonical, citeable URL for the article.</p>
+<p>The <cite>embeddable</cite> parameter SHOULD be true if the resource (or the element
+pointed to by <cite>root</cite>) is embeddable, eg.:</p>
+<blockquote>
+<div><ul class="simple">
+<li>the resource contains only the article proper,</li>
+<li>it is self-contained HTML</li>
+</ul>
+</div></blockquote>
+<p>but it MUST NOT be true if the resource is not embeddable.</p>
+<p>The <a class="reference internal" href="#t13n"><span class="std std-ref">Transliterations</span></a> parameter indicates which transliteration was used for
+Devanagari script in the article.</p>
+<p><em class="mimetype">text/x-html-literal</em> is a custom mimetype used to indicate that
+the article HTML has been included literally instead of being referenced by
+url.  Including the article’s text may save the client one trip to the
+server.</p>
+<p>The <cite>root</cite> parameter is a CSS selector to the root element in the HTML
+containing the article proper.  Set this if the HTML you serve contains
+extraneous information like headers, footers, navigation bars, etc. Default
+“article”.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018 CCeH - Licensed under the GNU GPL v3 or later.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
