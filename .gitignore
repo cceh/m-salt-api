@@ -1,0 +1,7 @@
+*~
+*.log
+.buildinfo
+**/node_modules/
+**/__pycache__/
+client/dist/
+docs/dist/
