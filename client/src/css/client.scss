@@ -75,6 +75,10 @@ li.headword {
 }
 
 article.article {
+    div.article-t13n-dropdown {
+        float: left;
+        margin-right: 1em;
+    }
     div.canonical_url {
         margin: 1em 0;
     }
@@ -85,6 +89,6 @@ article.article {
     transition: background 0.5s linear;
 }
 
-div.transliterated {
+div.q_in_deva {
     font-size: x-large;
 }

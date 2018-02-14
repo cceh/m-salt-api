@@ -64,12 +64,20 @@ Transliterations
 Transliteration (t13n) is the act of representing Devanagari script in Latin
 characters.
 
-The API supports following transliteration schemes:
+The API defines and supports the following transliteration schemes:
 
-  - iso:  ISO 15919      https://en.wikipedia.org/wiki/ISO_15919
-  - hk:   Harvard-Kyoto  https://en.wikipedia.org/wiki/Harvard-Kyoto
-  - slp1: SLP1           https://en.wikipedia.org/wiki/SLP1
-  - deva: Devanagari     (no transliteration)
+====== ============== ===========================================
+id     Name           Wikipedia
+====== ============== ===========================================
+deva   Devanagari     (no transliteration)
+hk     Harvard-Kyoto  https://en.wikipedia.org/wiki/Harvard-Kyoto
+iast   IAST           https://en.wikipedia.org/wiki/IAST
+iso    ISO 15919      https://en.wikipedia.org/wiki/ISO_15919
+itrans ITRANS         https://en.wikipedia.org/wiki/ITRANS
+slp1   SLP1           https://en.wikipedia.org/wiki/SLP1
+vh     Velthuis       https://en.wikipedia.org/wiki/Velthuis
+wx     WX notation    https://en.wikipedia.org/wiki/WX_notation
+====== ============== ===========================================
 
 Different dictionaries may have adopted different transliteraton schemes.  The
 client needs to know which transliterations the server offers for articles and
@@ -120,8 +128,9 @@ Endpoints
       {
         "short_name": "CPD",
         "name": "A Critical P\u0101li Dictionary",
+        "url": "http://cpd.uni-koeln.de/",
         "css": "span.smalltext { font-size: smaller }",
-        "t13n_query" : ["iso", "slp1", "deva"]
+        "supported_t13ns_query" : ["iso", "slp1", "deva"]
       }
 
    :resheader Content-Type: application/json
@@ -130,11 +139,18 @@ Endpoints
                                   Max. 10 unicode characters.
    :resjsonobj string name: A longer name of the dictionary.
                             Max. 80 unicode characters.
+   :resjsonobj url url: The URL of the main page of the dictionary.
    :resjsonobj string css: Any CSS needed to display the HTML version of your
-                           articles. See `embedded HTML <embed>`.
+                           articles. See :ref:`embedded HTML <embed>`.
    :resjsonobj url css_url: Optional.  Alternatively an URL to your CSS sheet.
-   :resjsonobj array t13n_query: The :ref:`transliterations <t13n>` supported by
-                                 the server for queries.
+   :resjsonobj array supported_t13ns_query: The :ref:`transliterations <t13n>`
+                                 supported by the server for queries, in order
+                                 of preference.
+
+   When sending the query to the server, the client MAY transliterate the user's
+   chosen t13n to one accepted by the server.  The client SHOULD use the user's
+   chosen t13n scheme if the server accepts it.  The client MUST display an
+   error message if unable to transliterate to an :ref:`accepted scheme <t13n>`.
 
 
 .. http:get:: /headwords/
@@ -145,7 +161,7 @@ Endpoints
 
    .. sourcecode:: http
 
-      GET /headwords/?q=ahimsa*&t13n=slp1&limit=5 HTTP/1.1
+      GET /headwords/?q=ahimsa*&t13n=slp1&limit=3 HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -156,11 +172,27 @@ Endpoints
       Content-Type: application/json
 
       [
-        {"article_url": "article/11411", "headword": "a-hi\u1e41sa",   "t13n": "iso", "url": "headword/43681"},
-        {"article_url": "article/11412", "headword": "a-hi\u1e41sa",   "t13n": "iso", "url": "headword/43685"},
-        {"article_url": "article/11413", "headword": "a-hi\u1e41saka", "t13n": "iso", "url": "headword/43687"},
-        {"article_url": "article/11412", "headword": "a-hi\u1e41sat",  "t13n": "iso", "url": "headword/43683"},
-        {"article_url": "article/11419", "headword": "a-hi\u1e41sana", "t13n": "iso", "url": "headword/43698"}
+        {
+          "article_url": "articles/11411",
+          "normalized_text": "a-hi\u1e41sa",
+          "t13n": "iso",
+          "text": "[a-hi\u1e41sa",
+          "url": "headwords/43681"
+        },
+        {
+          "article_url": "articles/11412",
+          "normalized_text": "a-hi\u1e41sa",
+          "t13n": "iso",
+          "text": "a-hi\u1e41sa",
+          "url": "headwords/43685"
+        },
+        {
+          "article_url": "articles/11413",
+          "normalized_text": "a-hi\u1e41saka",
+          "t13n": "iso",
+          "text": "a-hi\u1e41saka",
+          "url": "headwords/43687"
+        }
       ]
 
    :query q: query. Restrict the result to headwords matching this query.
@@ -170,10 +202,12 @@ Endpoints
    :query offset: offset number. Default 0.
    :resheader Content-Type: application/json
    :statuscode 200: no error
-   :resjsonobj string headword: the headword. :ref:`Some HTML <embed>` allowed.
+   :resjsonobj string text: the headword. :ref:`Some HTML <embed>` allowed.
+   :resjsonobj string normalized_text: the headword as it should be entered in a query.
    :resjsonobj url url: the headword endpoint url relative to the API root.
    :resjsonobj url article_url: the article endpoint url of the article relative to the API root.
-   :resjsonobj string t13n: The transliteration applied to the headword. Default "iso".
+   :resjsonobj string t13n: The :ref:`transliteration <t13n>` applied to the
+                            headword. Default "iso".
 
    If `q` is not specified, retrieve a list of all headwords.
 
@@ -219,7 +253,8 @@ Endpoints
    :resjsonobj string headword: the headword. :ref:`Some HTML <embed>` allowed.
    :resjsonobj url url: the headword endpoint url relative to the API root.
    :resjsonobj url article_url: the article endpoint url of the article relative to the API root.
-   :resjsonobj string t13n: The transliteration applied to the headword. Default "iso".
+   :resjsonobj string t13n: The :ref:`transliteration <t13n>` applied to the
+                            headword. Default "iso".
 
 
 .. http:get:: /headwords/(id)/context/
@@ -259,7 +294,8 @@ Endpoints
    :resjsonobj string headword: the headword. :ref:`Some HTML <embed>` allowed.
    :resjsonobj url url: the headword endpoint url relative to the API root.
    :resjsonobj url article_url: the article endpoint url of the article relative to the API root.
-   :resjsonobj string t13n: The transliteration applied to the headword. Default "iso".
+   :resjsonobj string t13n: The :ref:`transliteration <t13n>` applied to the
+                            headword. Default "iso".
 
 
 .. http:get:: /articles/(id)
@@ -325,7 +361,8 @@ Endpoints
                                    embeddable.
    :resjsonobj boolean canonical: Optional.  True if this url is the citeable
                                   canonical URL for the article.
-   :resjsonobj string t13n: The transliteration applied to that article. Default "iso".
+   :resjsonobj string t13n: The :ref:`transliteration <t13n>` applied to that
+                            article. Default "iso".
    :resjsonobj url    url: Optional. An array of urls to a series of resources
                            containing the article.
    :resjsonobj string text: Optional. Alternatively the article can be included
@@ -359,8 +396,8 @@ Endpoints
 
    but it MUST NOT be true if the resource is not embeddable.
 
-   The :ref:`t13n` parameter indicates which transliteration was used for
-   Devanagari script in the article.
+   The :ref:`t13n` parameter indicates which :ref:`transliteration <t13n>` was
+   used for Devanagari script in the article.
 
    :mimetype:`text/x-html-literal` is a custom mimetype used to indicate that
    the article HTML has been included literally instead of being referenced by

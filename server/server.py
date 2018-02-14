@@ -29,7 +29,8 @@ from sqlalchemy.sql import text
 
 from werkzeug.routing import Map, Rule
 
-re_integer_arg = re.compile ('^[0-9]+$');
+re_integer_arg = re.compile (r'^[0-9]+$');
+re_normalize_headword = re.compile (r'^[-\[\(√°~]*(?:<sup>\d+</sup>)?(.*?)[-°~\)\]]*$');
 
 class MySQLEngine (object):
     """ Database Interface """
@@ -88,6 +89,17 @@ def arg (name, default, re, msg = None):
     return arg
 
 
+def make_headword (row, t13n):
+    m = re_normalize_headword.match (row[1])
+    return {
+        'url' : 'headwords/%d' % row[0],
+        'text' : row[1],
+        'normalized_text' : m.group (1).lower () if m else '', # iso has no uppercase
+        'article_url' : 'articles/%d' % row[2],
+        't13n' : t13n
+    }
+
+
 def make_html_response (obj):
     resp = flask.Response (obj, mimetype='text/html; charset=utf-8')
     resp.headers['Access-Control-Allow-Origin'] = '*'
@@ -101,25 +113,11 @@ def make_json_response (obj):
 
 
 def make_headword_response (row, t13n = 'iso'):
-    j = {
-        'url' : 'headwords/%d' % row[0],
-        'headword' : row[1],
-        'article_url' : 'articles/%d' % row[2],
-        't13n' : t13n
-    };
-    return make_json_response (j);
+    return make_json_response (make_headword (row, t13n));
 
 
 def make_headwords_response (res, t13n = 'iso'):
-    j = [
-        {
-            'url' : 'headwords/%d' % row[0],
-            'headword' : row[1],
-            'article_url' : 'articles/%d' % row[2],
-            't13n' : t13n
-        } for row in res
-    ]
-    return make_json_response (j);
+    return make_json_response ([ make_headword (row, t13n) for row in res ]);
 
 
 def wordlist (offset, limit):
@@ -147,9 +145,10 @@ def info ():
     info = {
         'name'       : app.config['APPLICATION_NAME'],
         'short_name' : app.config['APPLICATION_SHORT_NAME'],
+        'url'        : app.config['APPLICATION_MAIN_URL'],
         'css_url'    : app.config.get ('APPLICATION_CSS_URL', ''),
         'css'        : 'span.smalltext { font-size: smaller }',
-        't13n_query' : [ 'iso' ],
+        'supported_t13ns_query' : [ 'iso' ],
     }
     return make_json_response (info)
 
@@ -157,6 +156,8 @@ def info ():
 @app.endpoint ('articles')
 def articles (_id):
     """ Endpoint.  Retrieve a dictionary article by ID. """
+
+    canonical_url = app.config['APPLICATION_MAIN_URL'] + 'search?article_id='
 
     with current_app.config.dba.engine.begin () as conn:
         res = execute (conn, r"""
@@ -173,7 +174,7 @@ def articles (_id):
                 'mimetype' : 'text/html',
                 't13n' : 'iso',
                 'canonical' : True,
-                'url' : 'http://cpd.uni-koeln.de/search?article_id=%d' % _id,
+                'url' : canonical_url + str (_id),
             }
         ])
 
