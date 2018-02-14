@@ -24,10 +24,11 @@ const APIS = [
 ];
 
 const API = {
-    'name':       '',
-    'short_name': '',
-    'css':        null,
-    'css_url':    null,
+    'name':          '',
+    'short_name':    '',
+    'main_page_url': null,
+    'css':           null,
+    'css_url':       null,
     'supported_t13ns_query': ['iso'],
 }
 
@@ -185,9 +186,9 @@ $ (document).ready (function () {
             canonical_url : function () {
                 for (let a of this.article_formats) {
                     if (a.canonical)
-                        return a.url;
+                        return a.urls[0];
                 }
-                return '';
+                return null;
             },
         },
         methods: {
@@ -324,7 +325,8 @@ $ (document).ready (function () {
     // make the attributes known to vue.js early, or they won't be instrumented
     for (let api of APIS) {
         $.getJSON (api.url, (json) => {
-            Object.assign (api, API, _.pick (json, ['name', 'short_name', 'css_url', 'css', 't13n_query' ]))
+            Object.assign (api, API, _.pick (json, ['name', 'short_name', 'main_page_url',
+                                                    'css_url', 'css', 't13n_query' ]))
             if (api.css !== '') {
                 api.css = scope_css (api.css, '#article');
             }

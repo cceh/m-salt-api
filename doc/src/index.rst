@@ -126,11 +126,14 @@ Endpoints
       Content-Type: application/json
 
       {
-        "short_name": "CPD",
-        "name": "A Critical P\u0101li Dictionary",
-        "url": "http://cpd.uni-koeln.de/",
         "css": "span.smalltext { font-size: smaller }",
-        "supported_t13ns_query" : ["iso", "slp1", "deva"]
+        "css_url": "",
+        "name": "A Critical P\u0101li Dictionary",
+        "short_name": "CPD",
+        "supported_t13ns_query": [
+          "iso"
+        ],
+        "main_page_url": "http://cpd.uni-koeln.de/"
       }
 
    :resheader Content-Type: application/json
@@ -139,7 +142,7 @@ Endpoints
                                   Max. 10 unicode characters.
    :resjsonobj string name: A longer name of the dictionary.
                             Max. 80 unicode characters.
-   :resjsonobj url url: The URL of the main page of the dictionary.
+   :resjsonobj url main_page_url: The URL of the main page of the dictionary.
    :resjsonobj string css: Any CSS needed to display the HTML version of your
                            articles. See :ref:`embedded HTML <embed>`.
    :resjsonobj url css_url: Optional.  Alternatively an URL to your CSS sheet.
@@ -203,9 +206,10 @@ Endpoints
    :resheader Content-Type: application/json
    :statuscode 200: no error
    :resjsonobj string text: the headword. :ref:`Some HTML <embed>` allowed.
-   :resjsonobj string normalized_text: the headword as it should be entered in a query.
-   :resjsonobj url url: the headword endpoint url relative to the API root.
-   :resjsonobj url article_url: the article endpoint url of the article relative to the API root.
+   :resjsonobj string normalized_text: the headword as it would be sent in the
+                                       `q` parameter.
+   :resjsonobj url url: the headword endpoint URL relative to the API root.
+   :resjsonobj url article_url: the article endpoint URL of the article relative to the API root.
    :resjsonobj string t13n: The :ref:`transliteration <t13n>` applied to the
                             headword. Default "iso".
 
@@ -240,10 +244,11 @@ Endpoints
       Content-Type: application/json
 
       {
-        "article_url": "article/11421",
-        "headword": "a-hi\u1e41s\u0101",
+        "article_url": "articles/11421",
+        "normalized_text": "a-hi\u1e41s\u0101",
         "t13n": "iso",
-        "url": "headword/43704"
+        "text": "a-hi\u1e41s\u0101",
+        "url": "headwords/43704"
       }
 
    :param id: The headword id. See: :http:get:`/articles/(id)`.
@@ -251,8 +256,8 @@ Endpoints
    :statuscode 200: no error
    :statuscode 404: headword not found
    :resjsonobj string headword: the headword. :ref:`Some HTML <embed>` allowed.
-   :resjsonobj url url: the headword endpoint url relative to the API root.
-   :resjsonobj url article_url: the article endpoint url of the article relative to the API root.
+   :resjsonobj url url: the headword endpoint URL relative to the API root.
+   :resjsonobj url article_url: the article endpoint URL of the article relative to the API root.
    :resjsonobj string t13n: The :ref:`transliteration <t13n>` applied to the
                             headword. Default "iso".
 
@@ -265,7 +270,7 @@ Endpoints
 
    .. sourcecode:: http
 
-      GET /headwords/43704/context/?limit=2 HTTP/1.1
+      GET /headwords/43704/context/?limit=1 HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -276,11 +281,27 @@ Endpoints
       Content-Type: application/json
 
       [
-        {"article_url": "article/11420", "headword": "a-hi\u1e41saya", "t13n": "iso", "url": "headword/43702"},
-        {"article_url": "article/11420", "headword": "a-hi\u1e41sayat", "t13n": "iso", "url": "headword/43700"},
-        {"article_url": "article/11421", "headword": "a-hi\u1e41s\u0101", "t13n": "iso", "url": "headword/43704"},
-        {"article_url": "article/11437", "headword": "a-hita", "t13n": "iso", "url": "headword/43733"},
-        {"article_url": "article/11450", "headword": "a-hira\u00f1\u00f1a", "t13n": "iso", "url": "headword/43759"}
+        {
+          "article_url": "articles/11420",
+          "normalized_text": "a-hi\u1e41sayat",
+          "t13n": "iso",
+          "text": "a-hi\u1e41sayat",
+          "url": "headwords/43700"
+        },
+        {
+          "article_url": "articles/11421",
+          "normalized_text": "a-hi\u1e41s\u0101",
+          "t13n": "iso",
+          "text": "a-hi\u1e41s\u0101",
+          "url": "headwords/43704"
+        },
+        {
+          "article_url": "articles/11437",
+          "normalized_text": "a-hita",
+          "t13n": "iso",
+          "text": "a-hita",
+          "url": "headwords/43733"
+        }
       ]
 
    :param id: The article id. See: :http:get:`/articles/(id)`.
@@ -292,8 +313,8 @@ Endpoints
    :statuscode 200: no error
    :statuscode 404: article not found
    :resjsonobj string headword: the headword. :ref:`Some HTML <embed>` allowed.
-   :resjsonobj url url: the headword endpoint url relative to the API root.
-   :resjsonobj url article_url: the article endpoint url of the article relative to the API root.
+   :resjsonobj url url: the headword endpoint URL relative to the API root.
+   :resjsonobj url article_url: the article endpoint URL of the article relative to the API root.
    :resjsonobj string t13n: The :ref:`transliteration <t13n>` applied to the
                             headword. Default "iso".
 
@@ -329,24 +350,24 @@ Endpoints
           "canonical": true,
           "t13n" : "iso",
           "root" : "div.article",
-          "url"  : ["https://..."]
+          "urls"  : ["https://..."]
         },
         {
           "mimetype" : "text/html",
           "embeddable": true,
           "t13n" : "deva",
           "root" : "div.article",
-          "url" : ["https://..."]
+          "urls" : ["https://..."]
         },
         {
           "mimetype" : "application/xml+tei",
-          "url" : ["https://..."]
+          "urls" : ["https://..."]
         },
         {
           "mimetype" : "image/jpeg",
           "embeddable": true,
           "t13n" : "deva",
-          "url" : ["https://img1", "https://img2", "..."]
+          "urls" : ["https://img1", "https://img2", "..."]
         }
       ]
 
@@ -359,12 +380,12 @@ Endpoints
                                 or contained in `text`.
    :resjsonobj boolean embeddable: Optional.  True if the resource is
                                    embeddable.
-   :resjsonobj boolean canonical: Optional.  True if this url is the citeable
+   :resjsonobj boolean canonical: Optional.  True if this URL is the citeable
                                   canonical URL for the article.
    :resjsonobj string t13n: The :ref:`transliteration <t13n>` applied to that
                             article. Default "iso".
-   :resjsonobj url    url: Optional. An array of urls to a series of resources
-                           containing the article.
+   :resjsonobj url urls: Optional. An array of URLs to a series of resources
+                         containing the article.
    :resjsonobj string text: Optional. Alternatively the article can be included
                             literally. :ref:`Some HTML <embed>` allowed.
    :resjsonobj string root: Optional. A CSS selector pointing to the element in
@@ -385,8 +406,10 @@ Endpoints
    The `mimetype` parameter indicates the mimetype of the resource.  It MUST be
    the same as the content-type of the server's response.
 
-   The `canonical` parameter MUST be true iff the `url` represents the
-   canonical, citeable URL for the article.
+   The type :mimetype:`text/x-html-literal` is a custom mimetype used to
+   indicate that the article HTML has been included literally in the `text`
+   parameter instead of being referenced by URL.  Including the article's text
+   may save the client one trip to the server.
 
    The `embeddable` parameter SHOULD be true if the resource (or the element
    pointed to by `root`) is embeddable, eg.:
@@ -396,13 +419,13 @@ Endpoints
 
    but it MUST NOT be true if the resource is not embeddable.
 
+   The `canonical` parameter MUST be true iff the `url` represents the
+   canonical, citeable URL for the article.
+
    The :ref:`t13n` parameter indicates which :ref:`transliteration <t13n>` was
    used for Devanagari script in the article.
 
-   :mimetype:`text/x-html-literal` is a custom mimetype used to indicate that
-   the article HTML has been included literally instead of being referenced by
-   url.  Including the article's text may save the client one trip to the
-   server.
+   The `urls` parameter is always an array even with only one URL returned.
 
    The `root` parameter is a CSS selector to the root element in the HTML
    containing the article proper.  Set this if the HTML you serve contains

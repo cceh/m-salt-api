@@ -143,11 +143,11 @@ def info ():
     """ Endpoint.  The root of the application. """
 
     info = {
-        'name'       : app.config['APPLICATION_NAME'],
-        'short_name' : app.config['APPLICATION_SHORT_NAME'],
-        'url'        : app.config['APPLICATION_MAIN_URL'],
-        'css_url'    : app.config.get ('APPLICATION_CSS_URL', ''),
-        'css'        : 'span.smalltext { font-size: smaller }',
+        'name'          : app.config['APPLICATION_NAME'],
+        'short_name'    : app.config['APPLICATION_SHORT_NAME'],
+        'main_page_url' : app.config['APPLICATION_MAIN_URL'],
+        'css_url'       : app.config.get ('APPLICATION_CSS_URL', ''),
+        'css'           : 'span.smalltext { font-size: smaller }',
         'supported_t13ns_query' : [ 'iso' ],
     }
     return make_json_response (info)
@@ -174,7 +174,7 @@ def articles (_id):
                 'mimetype' : 'text/html',
                 't13n' : 'iso',
                 'canonical' : True,
-                'url' : canonical_url + str (_id),
+                'urls' : [ canonical_url + str (_id) ],
             }
         ])
 
