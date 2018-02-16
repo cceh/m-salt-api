@@ -55,6 +55,10 @@ All responses of this API are in JSON format.  All endpoints ending in "/"
 (except the root endpoint) return JSON arrays. All other endpoints return a JSON
 object.
 
+..
+   /articles/?q=fulltext or
+   /headwords/?fulltext=fulltext
+   Define t13n nodes inside articles
 
 .. _t13n:
 
@@ -64,10 +68,10 @@ Transliterations
 Transliteration (t13n) is the act of representing Devanagari script in Latin
 characters.
 
-The API defines and supports the following transliteration schemes:
+The API defines the following transliteration schemes:
 
 ====== ============== ===========================================
-id     Name           Wikipedia
+id     Name           Description
 ====== ============== ===========================================
 deva   Devanagari     (no transliteration)
 hk     Harvard-Kyoto  https://en.wikipedia.org/wiki/Harvard-Kyoto
@@ -80,8 +84,8 @@ wx     WX notation    https://en.wikipedia.org/wiki/WX_notation
 ====== ============== ===========================================
 
 Different dictionaries may have adopted different transliteraton schemes.  The
-client needs to know which transliterations the server offers for articles and
-which it accepts for queries.
+client needs to know which transliterations the server accepts for queries, and
+whicht transliteration was used in the server's answers.
 
 See also: https://en.wikipedia.org/wiki/Devanagari_transliteration
 
@@ -127,13 +131,10 @@ Endpoints
 
       {
         "css": "span.smalltext { font-size: smaller }",
-        "css_url": "",
+        "main_page_url": "http://cpd.uni-koeln.de/",
         "name": "A Critical P\u0101li Dictionary",
         "short_name": "CPD",
-        "supported_t13ns_query": [
-          "iso"
-        ],
-        "main_page_url": "http://cpd.uni-koeln.de/"
+        "supported_t13ns_query": [ "iso" ]
       }
 
    :resheader Content-Type: application/json
@@ -143,17 +144,20 @@ Endpoints
    :resjsonobj string name: A longer name of the dictionary.
                             Max. 80 unicode characters.
    :resjsonobj url main_page_url: The URL of the main page of the dictionary.
-   :resjsonobj string css: Any CSS needed to display the HTML version of your
-                           articles. See :ref:`embedded HTML <embed>`.
-   :resjsonobj url css_url: Optional.  Alternatively an URL to your CSS sheet.
+   :resjsonobj string css: Optional.  Any CSS needed to display the HTML version
+                           of your articles. Use either `css` or `css_url` or
+                           none.  See :ref:`embedded HTML <embed>`.
+   :resjsonobj url css_url: Optional.  An URL to your CSS sheet.  Use either
+                            `css` or `css_url` or none.  See :ref:`embedded HTML
+                            <embed>`.
    :resjsonobj array supported_t13ns_query: The :ref:`transliterations <t13n>`
                                  supported by the server for queries, in order
                                  of preference.
 
    When sending the query to the server, the client MAY transliterate the user's
-   chosen t13n to one accepted by the server.  The client SHOULD use the user's
-   chosen t13n scheme if the server accepts it.  The client MUST display an
-   error message if unable to transliterate to an :ref:`accepted scheme <t13n>`.
+   chosen t13n to one accepted by the server.  The client MUST display an error
+   message if unable to do so.  The client SHOULD use the user's chosen t13n
+   scheme if the server accepts it.
 
 
 .. http:get:: /headwords/
@@ -198,29 +202,35 @@ Endpoints
         }
       ]
 
-   :query q: query. Restrict the result to headwords matching this query.
-   :query t13n: :ref:`transliteration <t13n>` scheme of the `q`
-                parameter. Default "iso".
+   :query q: The query. Restrict the result to headwords matching this query.
+   :query fulltext: Fulltext query. Restrict the result to headwords of articles
+                    matching this text.
+   :query t13n: :ref:`transliteration <t13n>` scheme of the `q` and `fulltext`
+                parameters. Default "iso".
    :query limit: limit number. Default 100.
    :query offset: offset number. Default 0.
    :resheader Content-Type: application/json
    :statuscode 200: no error
-   :resjsonobj string text: the headword. :ref:`Some HTML <embed>` allowed.
-   :resjsonobj string normalized_text: the headword as it would be sent in the
-                                       `q` parameter.
-   :resjsonobj url url: the headword endpoint URL relative to the API root.
-   :resjsonobj url article_url: the article endpoint URL of the article relative to the API root.
-   :resjsonobj string t13n: The :ref:`transliteration <t13n>` applied to the
-                            headword. Default "iso".
+   :statuscode 400: Bad Request.  If the server does not support fulltext
+                    searches.
 
-   If `q` is not specified, retrieve a list of all headwords.
+
+   For the response object parameters see: :http:get:`/headwords/(id)`.
+
+   If both `q` and `fulltext` are specified the filters are both applied.  If
+   neither `q` nor `fulltext` are specified, this call retrieves a list of all
+   headwords.
 
    `q` is allowed to contain globs, eg. the character "*" stands for any
    sequence of characters and the character "?" stands for any single character.
 
    The `t13n` parameter on the request is the :ref:`transliteration <t13n>` used
-   in the `q` parameter.  The transliteration used in the response may be
-   different and is indicated in the response's `t13n` parameter.
+   in the `q` and `fulltext` parameters.  The transliteration used in the
+   response may be different and is indicated in the response's `t13n`
+   parameter.
+
+   A server not supporting fulltext searches MUST return a http status 400 bad
+   request.
 
    See also: the :http:get:`/` endpoint.
 
@@ -255,11 +265,13 @@ Endpoints
    :resheader Content-Type: application/json
    :statuscode 200: no error
    :statuscode 404: headword not found
-   :resjsonobj string headword: the headword. :ref:`Some HTML <embed>` allowed.
-   :resjsonobj url url: the headword endpoint URL relative to the API root.
    :resjsonobj url article_url: the article endpoint URL of the article relative to the API root.
+   :resjsonobj string normalized_text: the headword as it would be sent in the
+                                       `q` parameter.
    :resjsonobj string t13n: The :ref:`transliteration <t13n>` applied to the
                             headword. Default "iso".
+   :resjsonobj string text: the headword. :ref:`Some HTML <embed>` allowed.
+   :resjsonobj url url: the headword endpoint URL relative to the API root.
 
 
 .. http:get:: /headwords/(id)/context/
@@ -312,22 +324,52 @@ Endpoints
    :resheader Content-Type: application/json
    :statuscode 200: no error
    :statuscode 404: article not found
-   :resjsonobj string headword: the headword. :ref:`Some HTML <embed>` allowed.
-   :resjsonobj url url: the headword endpoint URL relative to the API root.
-   :resjsonobj url article_url: the article endpoint URL of the article relative to the API root.
-   :resjsonobj string t13n: The :ref:`transliteration <t13n>` applied to the
-                            headword. Default "iso".
+
+   For the response object parameters see: :http:get:`/headwords/(id)`
 
 
 .. http:get:: /articles/(id)
 
-   Get an article's content.
+   Get the article.
 
    **Example request**:
 
    .. sourcecode:: http
 
       GET /articles/42 HTTP/1.1
+      Host: api.cpd.uni-koeln.de
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Content-Type: application/json
+
+      {
+        "article_url" : "/article/42",
+      }
+
+   :param id: The article id. Can be any string that is convenient to the server
+              and does not contain URL special characters.
+   :resheader Content-Type: application/json
+   :statuscode 200: no error
+   :statuscode 404: article not found
+   :resjsonobj url article_url: The endpoint URL of the article.
+
+   A quite pointless endpoint.  Included for aesthetical reasons (symmetry with
+   :http:get:`/headwords/(id)`)
+
+
+.. http:get:: /articles/(id)/formats/
+
+   Get a list of an article's available formats.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /articles/42/formats/ HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -431,6 +473,49 @@ Endpoints
    containing the article proper.  Set this if the HTML you serve contains
    extraneous information like headers, footers, navigation bars, etc. Default
    "article".
+
+
+.. http:get:: /articles/(id)/headwords/
+
+   Get a list of an article's headwords.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /articles/11412/headwords/ HTTP/1.1
+      Host: api.cpd.uni-koeln.de
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Content-Type: application/json
+
+      [
+        {
+          "article_url": "articles/11412",
+          "normalized_text": "a-hi\u1e41sa",
+          "t13n": "iso",
+          "text": "a-hi\u1e41sa",
+          "url": "headwords/43685"
+        },
+        {
+          "article_url": "articles/11412",
+          "normalized_text": "a-hi\u1e41sat",
+          "t13n": "iso",
+          "text": "a-hi\u1e41sat",
+          "url": "headwords/43683"
+        }
+      ]
+
+   :param id: The article id. See: :http:get:`/articles/(id)`.
+   :resheader Content-Type: application/json
+   :statuscode 200: no error
+   :statuscode 404: article not found
+
+   For the response object parameters see: :http:get:`/headwords/(id)`
 
 
 Indices and tables

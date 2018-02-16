@@ -1,6 +1,12 @@
 @import "node_modules/bootstrap/scss/bootstrap.scss";
+@import "./common.scss";
 
-$bg-gray: $gray-200;
+@font-face {
+  font-family: 'siddhanta';
+  src: url('../webfonts/siddhanta.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
 
 html {
     position: relative;
@@ -39,7 +45,7 @@ body {
     background-color: $bg-gray;
 }
 
-div.dictionary-list, div.results, div.context {
+div.dictionary-list {
     ul {
         list-style-type: none;
         margin-top: 1rem;
@@ -49,29 +55,6 @@ div.dictionary-list, div.results, div.context {
 
 div.results {
     margin-top: 1em;
-    h2 {
-        margin-top: 1rem;
-        font-size: 120%;
-        font-weight: bold;
-    }
-}
-
-ul.selected {
-    li.headword.selected {
-        &:before {
-            display: block;
-            float: left;
-            margin-left: -1.5em;
-            content: "⯈";
-        }
-    }
-}
-
-li.headword {
-    cursor: pointer;
-    &:hover {
-        background-color: $bg-gray;
-    }
 }
 
 article.article {
@@ -87,6 +70,10 @@ article.article {
 #search {
     background: white;
     transition: background 0.5s linear;
+}
+
+[data-script='deva'] {
+    font-family: siddhanta;
 }
 
 div.q_in_deva {

@@ -201,7 +201,7 @@ object.</p>
 <span id="t13n"></span><h3>Transliterations<a class="headerlink" href="#transliterations" title="Permalink to this headline">¶</a></h3>
 <p>Transliteration (t13n) is the act of representing Devanagari script in Latin
 characters.</p>
-<p>The API defines and supports the following transliteration schemes:</p>
+<p>The API defines the following transliteration schemes:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="10%" />
@@ -211,7 +211,7 @@ characters.</p>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">id</th>
 <th class="head">Name</th>
-<th class="head">Wikipedia</th>
+<th class="head">Description</th>
 </tr>
 </thead>
 <tbody valign="top">
@@ -250,8 +250,8 @@ characters.</p>
 </tbody>
 </table>
 <p>Different dictionaries may have adopted different transliteraton schemes.  The
-client needs to know which transliterations the server offers for articles and
-which it accepts for queries.</p>
+client needs to know which transliterations the server accepts for queries, and
+whicht transliteration was used in the server’s answers.</p>
 <p>See also: <a class="reference external" href="https://en.wikipedia.org/wiki/Devanagari_transliteration">https://en.wikipedia.org/wiki/Devanagari_transliteration</a></p>
 </div>
 <div class="section" id="embedded-html">
@@ -284,13 +284,10 @@ different dictionaries in a visually pleasing way.</p>
 
 <span class="p">{</span>
   <span class="nt">&quot;css&quot;</span><span class="p">:</span> <span class="s2">&quot;span.smalltext { font-size: smaller }&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;css_url&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;main_page_url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://cpd.uni-koeln.de/&quot;</span><span class="p">,</span>
   <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;A Critical P\u0101li Dictionary&quot;</span><span class="p">,</span>
   <span class="nt">&quot;short_name&quot;</span><span class="p">:</span> <span class="s2">&quot;CPD&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;supported_t13ns_query&quot;</span><span class="p">:</span> <span class="p">[</span>
-    <span class="s2">&quot;iso&quot;</span>
-  <span class="p">],</span>
-  <span class="nt">&quot;main_page_url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://cpd.uni-koeln.de/&quot;</span>
+  <span class="nt">&quot;supported_t13ns_query&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="s2">&quot;iso&quot;</span> <span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -316,9 +313,11 @@ Max. 10 unicode characters.</li>
 <li><strong>name</strong> (<em>string</em>) – A longer name of the dictionary.
 Max. 80 unicode characters.</li>
 <li><strong>main_page_url</strong> (<em>url</em>) – The URL of the main page of the dictionary.</li>
-<li><strong>css</strong> (<em>string</em>) – Any CSS needed to display the HTML version of your
-articles. See <a class="reference internal" href="#embed"><span class="std std-ref">embedded HTML</span></a>.</li>
-<li><strong>css_url</strong> (<em>url</em>) – Optional.  Alternatively an URL to your CSS sheet.</li>
+<li><strong>css</strong> (<em>string</em>) – Optional.  Any CSS needed to display the HTML version
+of your articles. Use either <cite>css</cite> or <cite>css_url</cite> or
+none.  See <a class="reference internal" href="#embed"><span class="std std-ref">embedded HTML</span></a>.</li>
+<li><strong>css_url</strong> (<em>url</em>) – Optional.  An URL to your CSS sheet.  Use either
+<cite>css</cite> or <cite>css_url</cite> or none.  See <a class="reference internal" href="#embed"><span class="std std-ref">embedded HTML</span></a>.</li>
 <li><strong>supported_t13ns_query</strong> (<em>array</em>) – The <a class="reference internal" href="#t13n"><span class="std std-ref">transliterations</span></a>
 supported by the server for queries, in order
 of preference.</li>
@@ -328,9 +327,9 @@ of preference.</li>
 </tbody>
 </table>
 <p>When sending the query to the server, the client MAY transliterate the user’s
-chosen t13n to one accepted by the server.  The client SHOULD use the user’s
-chosen t13n scheme if the server accepts it.  The client MUST display an
-error message if unable to transliterate to an <a class="reference internal" href="#t13n"><span class="std std-ref">accepted scheme</span></a>.</p>
+chosen t13n to one accepted by the server.  The client MUST display an error
+message if unable to do so.  The client SHOULD use the user’s chosen t13n
+scheme if the server accepts it.</p>
 </dd></dl>
 
 <dl class="get">
@@ -377,9 +376,11 @@ error message if unable to transliterate to an <a class="reference internal" hre
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
 <tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
-<li><strong>q</strong> – query. Restrict the result to headwords matching this query.</li>
-<li><strong>t13n</strong> – <a class="reference internal" href="#t13n"><span class="std std-ref">transliteration</span></a> scheme of the <cite>q</cite>
-parameter. Default “iso”.</li>
+<li><strong>q</strong> – The query. Restrict the result to headwords matching this query.</li>
+<li><strong>fulltext</strong> – Fulltext query. Restrict the result to headwords of articles
+matching this text.</li>
+<li><strong>t13n</strong> – <a class="reference internal" href="#t13n"><span class="std std-ref">transliteration</span></a> scheme of the <cite>q</cite> and <cite>fulltext</cite>
+parameters. Default “iso”.</li>
 <li><strong>limit</strong> – limit number. Default 100.</li>
 <li><strong>offset</strong> – offset number. Default 0.</li>
 </ul>
@@ -391,31 +392,27 @@ parameter. Default “iso”.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first simple">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
-<li><strong>text</strong> (<em>string</em>) – the headword. <a class="reference internal" href="#embed"><span class="std std-ref">Some HTML</span></a> allowed.</li>
-<li><strong>normalized_text</strong> (<em>string</em>) – the headword as it would be sent in the
-<cite>q</cite> parameter.</li>
-<li><strong>url</strong> (<em>url</em>) – the headword endpoint URL relative to the API root.</li>
-<li><strong>article_url</strong> (<em>url</em>) – the article endpoint URL of the article relative to the API root.</li>
-<li><strong>t13n</strong> (<em>string</em>) – The <a class="reference internal" href="#t13n"><span class="std std-ref">transliteration</span></a> applied to the
-headword. Default “iso”.</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> – Bad Request.  If the server does not support fulltext
+searches.</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<p>If <cite>q</cite> is not specified, retrieve a list of all headwords.</p>
+<p>For the response object parameters see: <a class="reference internal" href="#get--headwords-(id)" title="GET /headwords/(id)"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/headwords/(id)</span></code></a>.</p>
+<p>If both <cite>q</cite> and <cite>fulltext</cite> are specified the filters are both applied.  If
+neither <cite>q</cite> nor <cite>fulltext</cite> are specified, this call retrieves a list of all
+headwords.</p>
 <p><cite>q</cite> is allowed to contain globs, eg. the character “*” stands for any
 sequence of characters and the character “?” stands for any single character.</p>
 <p>The <cite>t13n</cite> parameter on the request is the <a class="reference internal" href="#t13n"><span class="std std-ref">transliteration</span></a> used
-in the <cite>q</cite> parameter.  The transliteration used in the response may be
-different and is indicated in the response’s <cite>t13n</cite> parameter.</p>
+in the <cite>q</cite> and <cite>fulltext</cite> parameters.  The transliteration used in the
+response may be different and is indicated in the response’s <cite>t13n</cite>
+parameter.</p>
+<p>A server not supporting fulltext searches MUST return a http status 400 bad
+request.</p>
 <p>See also: the <a class="reference internal" href="#get--" title="GET /"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/</span></code></a> endpoint.</p>
 </dd></dl>
 
@@ -464,11 +461,13 @@ different and is indicated in the response’s <cite>t13n</cite> parameter.</p>
 </tr>
 <tr class="field-even field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
 <tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
-<li><strong>headword</strong> (<em>string</em>) – the headword. <a class="reference internal" href="#embed"><span class="std std-ref">Some HTML</span></a> allowed.</li>
-<li><strong>url</strong> (<em>url</em>) – the headword endpoint URL relative to the API root.</li>
 <li><strong>article_url</strong> (<em>url</em>) – the article endpoint URL of the article relative to the API root.</li>
+<li><strong>normalized_text</strong> (<em>string</em>) – the headword as it would be sent in the
+<cite>q</cite> parameter.</li>
 <li><strong>t13n</strong> (<em>string</em>) – The <a class="reference internal" href="#t13n"><span class="std std-ref">transliteration</span></a> applied to the
 headword. Default “iso”.</li>
+<li><strong>text</strong> (<em>string</em>) – the headword. <a class="reference internal" href="#embed"><span class="std std-ref">Some HTML</span></a> allowed.</li>
+<li><strong>url</strong> (<em>url</em>) – the headword endpoint URL relative to the API root.</li>
 </ul>
 </td>
 </tr>
@@ -538,32 +537,75 @@ headwords.  Default 10.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first simple">
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – article not found</li>
 </ul>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
-<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
-<li><strong>headword</strong> (<em>string</em>) – the headword. <a class="reference internal" href="#embed"><span class="std std-ref">Some HTML</span></a> allowed.</li>
-<li><strong>url</strong> (<em>url</em>) – the headword endpoint URL relative to the API root.</li>
-<li><strong>article_url</strong> (<em>url</em>) – the article endpoint URL of the article relative to the API root.</li>
-<li><strong>t13n</strong> (<em>string</em>) – The <a class="reference internal" href="#t13n"><span class="std std-ref">transliteration</span></a> applied to the
-headword. Default “iso”.</li>
-</ul>
-</td>
-</tr>
 </tbody>
 </table>
+<p>For the response object parameters see: <a class="reference internal" href="#get--headwords-(id)" title="GET /headwords/(id)"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/headwords/(id)</span></code></a></p>
 </dd></dl>
 
 <dl class="get">
 <dt id="get--articles-(id)">
 <code class="descname">GET </code><code class="descname">/articles/</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#get--articles-(id)" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get an article’s content.</p>
+<dd><p>Get the article.</p>
 <p><strong>Example request</strong>:</p>
 <div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/articles/42</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">api.cpd.uni-koeln.de</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;article_url&quot;</span> <span class="p">:</span> <span class="s2">&quot;/article/42&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>id</strong> – The article id. Can be any string that is convenient to the server
+and does not contain URL special characters.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Response Headers:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – application/json</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – article not found</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>article_url</strong> (<em>url</em>) – The endpoint URL of the article.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>A quite pointless endpoint.  Included for aesthetical reasons (symmetry with
+<a class="reference internal" href="#get--headwords-(id)" title="GET /headwords/(id)"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/headwords/(id)</span></code></a>)</p>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--articles-(id)-formats-">
+<code class="descname">GET </code><code class="descname">/articles/</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><code class="descname">/formats/</code><a class="headerlink" href="#get--articles-(id)-formats-" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of an article’s available formats.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/articles/42/formats/</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">api.cpd.uni-koeln.de</span>
 </pre></div>
 </div>
@@ -682,6 +724,63 @@ used for Devanagari script in the article.</p>
 containing the article proper.  Set this if the HTML you serve contains
 extraneous information like headers, footers, navigation bars, etc. Default
 “article”.</p>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--articles-(id)-headwords-">
+<code class="descname">GET </code><code class="descname">/articles/</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><code class="descname">/headwords/</code><a class="headerlink" href="#get--articles-(id)-headwords-" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of an article’s headwords.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/articles/11412/headwords/</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">api.cpd.uni-koeln.de</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;article_url&quot;</span><span class="p">:</span> <span class="s2">&quot;articles/11412&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;normalized_text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sa&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;t13n&quot;</span><span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sa&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;headwords/43685&quot;</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;article_url&quot;</span><span class="p">:</span> <span class="s2">&quot;articles/11412&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;normalized_text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sat&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;t13n&quot;</span><span class="p">:</span> <span class="s2">&quot;iso&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sat&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;headwords/43683&quot;</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>id</strong> – The article id. See: <a class="reference internal" href="#get--articles-(id)" title="GET /articles/(id)"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/articles/(id)</span></code></a>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Response Headers:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – application/json</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – article not found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>For the response object parameters see: <a class="reference internal" href="#get--headwords-(id)" title="GET /headwords/(id)"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/headwords/(id)</span></code></a></p>
 </dd></dl>
 
 </div>

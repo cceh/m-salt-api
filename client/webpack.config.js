@@ -13,6 +13,12 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.vue$/,
+                use: [
+                    'vue-loader'
+                ]
+            },
+            {
                 test: /\.css$/,
                 use: [
                     'style-loader',
@@ -33,6 +39,12 @@ module.exports = {
                     'file-loader'
                 ]
             },
+            {
+                test: /\.(eot|svg|ttf|woff|woff2)$/,
+                use: [
+                    'file-loader?name=webfonts/[name].[ext]'
+                ]
+            }
          ]
     },
     resolve: {

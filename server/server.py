@@ -4,22 +4,12 @@
 """An API for the Critical Pāli Dictionary"""
 
 import argparse
-import collections
 import configparser
 import datetime
-import functools
-import glob
-import io
-import itertools
 import json
 import logging
-import math
-import operator
 import re
-import sys
-import os
 import os.path
-import urllib.parse
 
 import flask
 import sqlalchemy
@@ -120,21 +110,6 @@ def make_headwords_response (res, t13n = 'iso'):
     return make_json_response ([ make_headword (row, t13n) for row in res ]);
 
 
-def wordlist (offset, limit):
-    """ Retrieve a list of headwords. """
-
-    with current_app.config.dba.engine.begin () as conn:
-        res = execute (conn, r"""
-        SELECT id, webkeyword, no
-        FROM keyword
-        ORDER BY sortkeyword
-        LIMIT :limit
-        OFFSET :offset
-        """, { 'offset' : offset, 'limit' : limit })
-
-        return make_headwords_response (res)
-
-
 # need this before first @app.endpoint declaration
 app = flask.Flask (__name__)
 
@@ -146,70 +121,11 @@ def info ():
         'name'          : app.config['APPLICATION_NAME'],
         'short_name'    : app.config['APPLICATION_SHORT_NAME'],
         'main_page_url' : app.config['APPLICATION_MAIN_URL'],
-        'css_url'       : app.config.get ('APPLICATION_CSS_URL', ''),
+        # 'css_url'       : app.config.get ('APPLICATION_CSS_URL', ''),
         'css'           : 'span.smalltext { font-size: smaller }',
         'supported_t13ns_query' : [ 'iso' ],
     }
     return make_json_response (info)
-
-
-@app.endpoint ('articles')
-def articles (_id):
-    """ Endpoint.  Retrieve a dictionary article by ID. """
-
-    canonical_url = app.config['APPLICATION_MAIN_URL'] + 'search?article_id='
-
-    with current_app.config.dba.engine.begin () as conn:
-        res = execute (conn, r"""
-        SELECT webtext FROM article WHERE no=:no
-        """, { 'no' : _id })
-        return make_json_response ([
-            {
-                'mimetype' : 'text/x-html-literal',
-                't13n' : 'iso',
-                'embeddable' : True,
-                'text' : '<div>%s</div>' % res.fetchone ()[0],
-            },
-            {
-                'mimetype' : 'text/html',
-                't13n' : 'iso',
-                'canonical' : True,
-                'urls' : [ canonical_url + str (_id) ],
-            }
-        ])
-
-
-@app.endpoint ('headwords')
-def headwords ():
-    """ Endpoint.  Retrieve a list of headword IDs.
-
-    This implements the search query and wordlist.
-
-    """
-
-    q          = request.args.get ('q')
-    offset     = int (arg ('offset', '0', re_integer_arg))
-    limit      = clip (arg ('limit', '100', re_integer_arg), 1, 100)
-
-    if not q:
-        return wordlist (offset, limit)
-
-    q = q.replace ('-', '')
-    q = q.replace ('%', '')
-    q = q.replace ('?', '_')
-    q = q.replace ('*', '%')
-
-    with current_app.config.dba.engine.begin () as conn:
-        res = execute (conn, r"""
-        SELECT id, webkeyword, no
-        FROM keyword
-        WHERE keyword LIKE :q
-        ORDER BY sortkeyword
-        LIMIT :limit
-        OFFSET :offset
-        """, { 'q' : q, 'offset' : offset, 'limit' : limit })
-
-        return make_headwords_response (res)
 
 
 @app.endpoint ('headword')
@@ -225,6 +141,72 @@ def headword (_id):
 
         return make_headword_response (res.fetchone ())
 
+
+@app.endpoint ('headwords')
+def headwords ():
+    """ Endpoint.  Retrieve a list of headword IDs.
+
+    This implements the search query and wordlist.
+
+    """
+
+    q        = request.args.get ('q')
+    fulltext = request.args.get ('fulltext')
+    offset   = int (arg ('offset', '0', re_integer_arg))
+    limit    = clip (arg ('limit', '100', re_integer_arg), 1, 100)
+    where    = ''
+
+    if (not q) and (not fulltext):
+        # Retrieve full list of headwords
+        with current_app.config.dba.engine.begin () as conn:
+            res = execute (conn, r"""
+            SELECT id, webkeyword, no
+            FROM keyword
+            ORDER BY sortkeyword
+            LIMIT :limit
+            OFFSET :offset
+            """, { 'offset' : offset, 'limit' : limit })
+
+        return make_headwords_response (res)
+
+    if q:
+        q = q.replace ('-', '')
+        q = q.replace ('%', '')
+        q = q.replace ('?', '_')
+        q = q.replace ('*', '%')
+        where = "(keyword LIKE :q) AND"
+
+    if not fulltext:
+        # easy out
+        with current_app.config.dba.engine.begin () as conn:
+            res = execute (conn, r"""
+            SELECT id, webkeyword, no
+            FROM keyword
+            WHERE keyword LIKE :q
+            ORDER BY sortkeyword
+            LIMIT :limit
+            OFFSET :offset
+            """, { 'q' : q, 'offset' : offset, 'limit' : limit })
+
+        return make_headwords_response (res)
+
+    with current_app.config.dba.engine.begin () as conn:
+        res = execute (conn, r"""
+        SELECT DISTINCT
+           k.id,
+           k.webkeyword COLLATE utf8mb4_bin AS webkeyword,
+           k.no
+        FROM keyword k,
+             article a
+        WHERE {where} (MATCH (a.idxtext) AGAINST (:fulltext IN BOOLEAN MODE))
+        AND a.no = k.no
+        ORDER BY k.sortkeyword, k.n, k.no
+        LIMIT :limit
+        OFFSET :offset
+        """.format (where = where), { 'q' : q, 'fulltext' : fulltext,
+                                      'offset' : offset, 'limit' : limit })
+
+        return make_headwords_response (res)
 
 @app.endpoint ('context')
 def context (_id):
@@ -266,6 +248,56 @@ def context (_id):
         return make_headwords_response (res)
 
 
+@app.endpoint ('article')
+def article (_id):
+    """ Endpoint.  Retrieve an article. """
+
+    return make_json_response ({
+        'article_url' : '/article/' + str (_id),
+    })
+
+
+@app.endpoint ('articles_formats')
+def article_formats (_id):
+    """ Endpoint.  Retrieve an article's available formats. """
+
+    canonical_url = app.config['APPLICATION_MAIN_URL'] + 'search?article_id='
+
+    with current_app.config.dba.engine.begin () as conn:
+        res = execute (conn, r"""
+        SELECT webtext FROM article WHERE no=:no
+        """, { 'no' : _id })
+        return make_json_response ([
+            {
+                'mimetype' : 'text/x-html-literal',
+                't13n' : 'iso',
+                'embeddable' : True,
+                'text' : '<div>%s</div>' % res.fetchone ()[0],
+            },
+            {
+                'mimetype' : 'text/html',
+                't13n' : 'iso',
+                'canonical' : True,
+                'urls' : [ canonical_url + str (_id) ],
+            }
+        ])
+
+
+@app.endpoint ('articles_headwords')
+def article_headwords (_id):
+    """ Endpoint.  Retrieve the list of headwords for an article. """
+
+    with current_app.config.dba.engine.begin () as conn:
+        res = execute (conn, r"""
+        SELECT id, webkeyword, no
+        FROM keyword
+        WHERE no = :id
+        ORDER BY sortkeyword
+        """, { 'id' : _id })
+
+        return make_headwords_response (res)
+
+
 #
 # main
 #
@@ -298,11 +330,13 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['server_start_time'] = str (int (args.start_time.timestamp ()))
 
 app.url_map = Map ([
-    Rule ('/v1/',                             endpoint = 'info'),
-    Rule ('/v1/headwords/',                   endpoint = 'headwords'),
-    Rule ('/v1/headwords/<int:_id>',          endpoint = 'headword'),
-    Rule ('/v1/headwords/<int:_id>/context/', endpoint = 'context'),
-    Rule ('/v1/articles/<int:_id>',           endpoint = 'articles'),
+    Rule ('/v1/',                              endpoint = 'info'),
+    Rule ('/v1/headwords/',                    endpoint = 'headwords'),
+    Rule ('/v1/headwords/<int:_id>',           endpoint = 'headword'),
+    Rule ('/v1/headwords/<int:_id>/context/',  endpoint = 'context'),
+    Rule ('/v1/articles/<int:_id>',            endpoint = 'article'),
+    Rule ('/v1/articles/<int:_id>/formats/',   endpoint = 'articles_formats'),
+    Rule ('/v1/articles/<int:_id>/headwords/', endpoint = 'articles_headwords'),
 ])
 
 dba = flask_sqlalchemy.SQLAlchemy ()
