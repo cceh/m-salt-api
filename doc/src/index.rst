@@ -286,7 +286,7 @@ Endpoints
    :resjsonobj url headwords_url: the headword endpoint URL relative to the API root.
    :resjsonobj string normalized_text: the headword as it would be sent in the
                                        `q` parameter.
-   :resjsonobj string lang: The :ref:`transliteration <lang>` applied to the
+   :resjsonobj string lang: The :ref:`transliteration <t13n>` applied to the
                             headword. Default "Latn-x-iso".
    :resjsonobj string text: the headword. :ref:`Some HTML <embed>` allowed.
 

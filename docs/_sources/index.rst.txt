@@ -55,10 +55,6 @@ All responses of this API are in JSON format.  All endpoints ending in "/"
 (except the root endpoint) return JSON arrays. All other endpoints return a JSON
 object.
 
-..
-   /articles/?q=fulltext or
-   /headwords/?fulltext=fulltext
-   Define t13n nodes inside articles
 
 .. _t13n:
 
@@ -68,26 +64,47 @@ Transliterations
 Transliteration (t13n) is the act of representing Devanagari script in Latin
 characters.
 
-The API defines the following transliteration schemes:
+The API defines the following private use subtags for indication of
+transliteration:
 
-====== ============== ===========================================
-id     Name           Description
-====== ============== ===========================================
-deva   Devanagari     (no transliteration)
-hk     Harvard-Kyoto  https://en.wikipedia.org/wiki/Harvard-Kyoto
-iast   IAST           https://en.wikipedia.org/wiki/IAST
-iso    ISO 15919      https://en.wikipedia.org/wiki/ISO_15919
-itrans ITRANS         https://en.wikipedia.org/wiki/ITRANS
-slp1   SLP1           https://en.wikipedia.org/wiki/SLP1
-vh     Velthuis       https://en.wikipedia.org/wiki/Velthuis
-wx     WX notation    https://en.wikipedia.org/wiki/WX_notation
-====== ============== ===========================================
+============= ============== ===========================================
+subtag        Name           Description
+============= ============== ===========================================
+Deva          Devanagari     (no transliteration)
+Latn-x-hk     Harvard-Kyoto  https://en.wikipedia.org/wiki/Harvard-Kyoto
+Latn-x-iast   IAST           https://en.wikipedia.org/wiki/IAST
+Latn-x-iso    ISO 15919      https://en.wikipedia.org/wiki/ISO_15919
+Latn-x-itrans ITRANS         https://en.wikipedia.org/wiki/ITRANS
+Latn-x-slp1   SLP1           https://en.wikipedia.org/wiki/SLP1
+Latn-x-vh     Velthuis       https://en.wikipedia.org/wiki/Velthuis
+Latn-x-wx     WX notation    https://en.wikipedia.org/wiki/WX_notation
+============= ============== ===========================================
+
+In the server's response the subtag MAY be preceded by a language tag.  It is
+the client's responsibility to extract the t13n from a language tag. These are
+valid tags:
+
+ - sa-Latn-x-iso
+ - pi-Deva
+ - sa-x-hk
+ - x-slp1
 
 Different dictionaries may have adopted different transliteraton schemes.  The
 client needs to know which transliterations the server accepts for queries, and
 whicht transliteration was used in the server's answers.
 
-See also: https://en.wikipedia.org/wiki/Devanagari_transliteration
+When declaring transliterations in HTML use the lang attribute. Examples:
+
+ - <span land="sa-Latn-x-iso">...</span>
+ - <span lang="pi-Deva">...</span>
+ - <span lang="sa-x-hk">...</span>
+ - <span lang="x-slp1">...</span>
+
+
+See also:
+
+ - https://en.wikipedia.org/wiki/Devanagari_transliteration
+ - https://tools.ietf.org/html/rfc5646#section-2.2.7
 
 
 .. _embed:
@@ -134,7 +151,7 @@ Endpoints
         "main_page_url": "http://cpd.uni-koeln.de/",
         "name": "A Critical P\u0101li Dictionary",
         "short_name": "CPD",
-        "supported_t13ns_query": [ "iso" ]
+        "supported_langs_query": [ "pi-Latn-x-iso" ]
       }
 
    :resheader Content-Type: application/json
@@ -150,7 +167,7 @@ Endpoints
    :resjsonobj url css_url: Optional.  An URL to your CSS sheet.  Use either
                             `css` or `css_url` or none.  See :ref:`embedded HTML
                             <embed>`.
-   :resjsonobj array supported_t13ns_query: The :ref:`transliterations <t13n>`
+   :resjsonobj array supported_langs_query: The :ref:`transliterations <t13n>`
                                  supported by the server for queries, in order
                                  of preference.
 
@@ -168,7 +185,7 @@ Endpoints
 
    .. sourcecode:: http
 
-      GET /headwords/?q=ahimsa*&t13n=slp1&limit=3 HTTP/1.1
+      GET /headwords/?q=ahimsa*&lang=x-slp1&limit=3 HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -180,33 +197,33 @@ Endpoints
 
       [
         {
-          "article_url": "articles/11411",
+          "articles_url": "articles/11411",
           "normalized_text": "a-hi\u1e41sa",
-          "t13n": "iso",
+          "lang": "Latn-x-iso",
           "text": "[a-hi\u1e41sa",
-          "url": "headwords/43681"
+          "headwords_url": "headwords/43681"
         },
         {
-          "article_url": "articles/11412",
+          "articles_url": "articles/11412",
           "normalized_text": "a-hi\u1e41sa",
-          "t13n": "iso",
+          "lang": "Latn-x-iso",
           "text": "a-hi\u1e41sa",
-          "url": "headwords/43685"
+          "headwords_url": "headwords/43685"
         },
         {
-          "article_url": "articles/11413",
+          "articles_url": "articles/11413",
           "normalized_text": "a-hi\u1e41saka",
-          "t13n": "iso",
+          "lang": "Latn-x-iso",
           "text": "a-hi\u1e41saka",
-          "url": "headwords/43687"
+          "headwords_url": "headwords/43687"
         }
       ]
 
    :query q: The query. Restrict the result to headwords matching this query.
    :query fulltext: Fulltext query. Restrict the result to headwords of articles
                     matching this text.
-   :query t13n: :ref:`transliteration <t13n>` scheme of the `q` and `fulltext`
-                parameters. Default "iso".
+   :query lang: :ref:`transliteration <t13n>` scheme of the `q` and `fulltext`
+                parameters. Default "Latn-x-iso".
    :query limit: limit number. Default 100.
    :query offset: offset number. Default 0.
    :resheader Content-Type: application/json
@@ -224,9 +241,9 @@ Endpoints
    `q` is allowed to contain globs, eg. the character "*" stands for any
    sequence of characters and the character "?" stands for any single character.
 
-   The `t13n` parameter on the request is the :ref:`transliteration <t13n>` used
+   The `lang` parameter on the request is the :ref:`transliteration <t13n>` used
    in the `q` and `fulltext` parameters.  The transliteration used in the
-   response may be different and is indicated in the response's `t13n`
+   response may be different and is indicated in the response's `lang`
    parameter.
 
    A server not supporting fulltext searches MUST return a http status 400 bad
@@ -254,24 +271,24 @@ Endpoints
       Content-Type: application/json
 
       {
-        "article_url": "articles/11421",
+        "articles_url": "articles/11421",
         "normalized_text": "a-hi\u1e41s\u0101",
-        "t13n": "iso",
+        "lang": "Latn-x-iso",
         "text": "a-hi\u1e41s\u0101",
-        "url": "headwords/43704"
+        "headwords_url": "headwords/43704"
       }
 
    :param id: The headword id. See: :http:get:`/articles/(id)`.
    :resheader Content-Type: application/json
    :statuscode 200: no error
    :statuscode 404: headword not found
-   :resjsonobj url article_url: the article endpoint URL of the article relative to the API root.
+   :resjsonobj url articles_url: the article endpoint URL of the article relative to the API root.
+   :resjsonobj url headwords_url: the headword endpoint URL relative to the API root.
    :resjsonobj string normalized_text: the headword as it would be sent in the
                                        `q` parameter.
-   :resjsonobj string t13n: The :ref:`transliteration <t13n>` applied to the
-                            headword. Default "iso".
+   :resjsonobj string lang: The :ref:`transliteration <t13n>` applied to the
+                            headword. Default "Latn-x-iso".
    :resjsonobj string text: the headword. :ref:`Some HTML <embed>` allowed.
-   :resjsonobj url url: the headword endpoint URL relative to the API root.
 
 
 .. http:get:: /headwords/(id)/context/
@@ -294,25 +311,25 @@ Endpoints
 
       [
         {
-          "article_url": "articles/11420",
+          "articles_url": "articles/11420",
           "normalized_text": "a-hi\u1e41sayat",
-          "t13n": "iso",
+          "lang": "Latn-x-iso",
           "text": "a-hi\u1e41sayat",
-          "url": "headwords/43700"
+          "headwords_url": "headwords/43700"
         },
         {
-          "article_url": "articles/11421",
+          "articles_url": "articles/11421",
           "normalized_text": "a-hi\u1e41s\u0101",
-          "t13n": "iso",
+          "lang": "Latn-x-iso",
           "text": "a-hi\u1e41s\u0101",
-          "url": "headwords/43704"
+          "headwords_url": "headwords/43704"
         },
         {
-          "article_url": "articles/11437",
+          "articles_url": "articles/11437",
           "normalized_text": "a-hita",
-          "t13n": "iso",
+          "lang": "Latn-x-iso",
           "text": "a-hita",
-          "url": "headwords/43733"
+          "headwords_url": "headwords/43733"
         }
       ]
 
@@ -347,7 +364,7 @@ Endpoints
       Content-Type: application/json
 
       {
-        "article_url" : "/article/42",
+        "articles_url" : "/article/42",
       }
 
    :param id: The article id. Can be any string that is convenient to the server
@@ -355,7 +372,7 @@ Endpoints
    :resheader Content-Type: application/json
    :statuscode 200: no error
    :statuscode 404: article not found
-   :resjsonobj url article_url: The endpoint URL of the article.
+   :resjsonobj url articles_url: The endpoint URL of the article.
 
    A quite pointless endpoint.  Included for aesthetical reasons (symmetry with
    :http:get:`/headwords/(id)`)
@@ -383,21 +400,21 @@ Endpoints
         {
           "mimetype" : "text/x-html-literal",
           "embeddable": true,
-          "t13n" : "iso",
+          "lang" : "Latn-x-iso",
           "text" : "<div>...</div>"
         },
         {
           "mimetype" : "text/html",
           "embeddable": true,
           "canonical": true,
-          "t13n" : "iso",
+          "lang" : "Latn-x-iso",
           "root" : "div.article",
           "urls"  : ["https://..."]
         },
         {
           "mimetype" : "text/html",
           "embeddable": true,
-          "t13n" : "deva",
+          "lang" : "deva",
           "root" : "div.article",
           "urls" : ["https://..."]
         },
@@ -408,7 +425,7 @@ Endpoints
         {
           "mimetype" : "image/jpeg",
           "embeddable": true,
-          "t13n" : "deva",
+          "lang" : "deva",
           "urls" : ["https://img1", "https://img2", "..."]
         }
       ]
@@ -424,8 +441,8 @@ Endpoints
                                    embeddable.
    :resjsonobj boolean canonical: Optional.  True if this URL is the citeable
                                   canonical URL for the article.
-   :resjsonobj string t13n: The :ref:`transliteration <t13n>` applied to that
-                            article. Default "iso".
+   :resjsonobj string lang: The :ref:`transliteration <t13n>` applied to that
+                            article. Default "Latn-x-iso".
    :resjsonobj url urls: Optional. An array of URLs to a series of resources
                          containing the article.
    :resjsonobj string text: Optional. Alternatively the article can be included
@@ -464,8 +481,8 @@ Endpoints
    The `canonical` parameter MUST be true iff the `url` represents the
    canonical, citeable URL for the article.
 
-   The :ref:`t13n` parameter indicates which :ref:`transliteration <t13n>` was
-   used for Devanagari script in the article.
+   The `lang` parameter indicates which :ref:`transliteration <t13n>` was used
+   for Devanagari script in the article.
 
    The `urls` parameter is always an array even with only one URL returned.
 
@@ -495,18 +512,18 @@ Endpoints
 
       [
         {
-          "article_url": "articles/11412",
+          "articles_url": "articles/11412",
           "normalized_text": "a-hi\u1e41sa",
-          "t13n": "iso",
+          "lang": "Latn-x-iso",
           "text": "a-hi\u1e41sa",
-          "url": "headwords/43685"
+          "headwords_url": "headwords/43685"
         },
         {
-          "article_url": "articles/11412",
+          "articles_url": "articles/11412",
           "normalized_text": "a-hi\u1e41sat",
-          "t13n": "iso",
+          "lang": "Latn-x-iso",
           "text": "a-hi\u1e41sat",
-          "url": "headwords/43683"
+          "headwords_url": "headwords/43683"
         }
       ]
 
