@@ -30,24 +30,7 @@ const API = { // defaults for apis
     'short_name':    '',
     'main_page_url': '',
     'css':           '',
-    // 'css_url':       null,
-    'supported_t13ns_query': ['iso'],
-}
-
-function get_closest ($target, data_attr) {
-    return $target.closest ('[data-' + data_attr + ']').attr ('data-' + data_attr);
-}
-
-function drag_headword (event, headword) {
-    event.originalEvent.dataTransfer.setData (DNDTypeHeadword, JSON.stringify ({
-        'text' : headword,
-        't13n' : get_closest ($ (event.target), 't13n'),
-    }));
-    // flash the input control
-    $ ('#search').css ({ 'background-color' : '#ff0' })
-    setTimeout (function () {
-        $ ('#search').css ({ 'background-color' : '#fff' })
-    }, 500);
+    'supported_langs_query': ['iso'],  // sic!
 }
 
 // Register a global custom directive called `v-focus`
@@ -84,7 +67,7 @@ $ (document).ready (function () {
 
             // the t13n schemes we support in the order they should appear in the
             // dropdown menu
-            supported_t13n: [
+            supported_lang: [
                 { 'id' : 'deva',   'desc' : 'Devanagari' },
                 { 'id' : 'iso',    'desc' : 'ISO 15919' },
                 { 'id' : 'iast',   'desc' : 'IAST' },
@@ -95,17 +78,14 @@ $ (document).ready (function () {
                 { 'id' : 'itrans', 'desc' : 'ITRANS' },
             ],
 
-            // when displaying an article we prefer these t13ns in order
-            preferred_view_t13n: ['iso', 'slp1', 'hk', 'deva'],
-
             // model of the user controls
             // with some defaults filled in for easier testing
             user: {
                 active_apis: ['cpd', 'cpd2'],
                 fulltext: false,
                 query: '',
-                query_t13n: 'iso',
-                article_t13n: 'iso',
+                query_lang: 'iso',
+                article_lang: 'iso',
             },
         },
         watch: {
@@ -122,17 +102,17 @@ $ (document).ready (function () {
             },
         },
         computed: {
-            t13n_query_deva: function () {
-                return st.t13n (this.user.query, this.user.query_t13n, 'deva');
+            user_query_in_deva: function () {
+                return st.xlate (this.user.query, this.user.query_lang, 'deva');
             },
-            t13n_article: function () {
+            article_t13n: function () {
                 if (this.article) {
-                    let from = this.article.t13n;
-                    let to = this.user.article_t13n;
+                    let from = st.get_t13n (this.article.lang);
+                    let to = this.user.article_lang;
                     let $html = $(this.article.text);
                     // FIXME: make this configurable
                     $html.find ('b').each (function (index, elem) {
-                        st.t13n_text_nodes (elem, from, to);
+                        st.xlate_text_nodes (elem, from, to);
                         $ (elem).attr ('data-script', to);
                     });
                     return $html.html ();
@@ -156,14 +136,14 @@ $ (document).ready (function () {
                     },
                 });
             },
-            on_user_query_t13n : function (event) {
-                let from = this.user.query_t13n;
-                let to = $ (event.target).attr ('data-t13n');
-                this.user.query = st.t13n (this.user.query, from, to);
-                this.user.query_t13n = to;
+            on_user_query_lang : function (event) {
+                let from = this.user.query_lang;
+                let to = $ (event.target).attr ('data-lang'); // attr on button
+                this.user.query = st.xlate (this.user.query, from, to);
+                this.user.query_lang = to;
             },
-            on_user_article_t13n : function (event) {
-                this.user.article_t13n = $ (event.target).attr ('data-t13n');
+            on_user_article_lang : function (event) {
+                this.user.article_lang = $ (event.target).attr ('data-lang'); // attr on button
             },
             get_api : function (id) {
                 for (let api of this.apis) {
@@ -172,14 +152,13 @@ $ (document).ready (function () {
                 }
                 return null;
             },
-            get_preferred_view_t13n : function (json) {
-                for (let t13n of this.preferred_view_t13n) {
-                    for (let a of json) {
-                        if (a.mimetype == 'text/x-html-literal' && a.embeddable && a.t13n === t13n)
-                            return a;
-                    }
+            get_preferred_doc : function (json) {
+                for (let a of json) {
+                    if (a.mimetype == 'text/x-html-literal' && a.embeddable)
+                        return a;
                 }
-                return json.article[0];
+                // FIXME: implement retrieval of referenced doc
+                return json[0];
             },
             clear_article : function () {
                 this.api = null;
@@ -197,23 +176,23 @@ $ (document).ready (function () {
                 for (let id of this.user.active_apis) {
                     let api = this.get_api (id);
                     let q = '';
-                    let preferred_t13n = '';
-                    if (api.supported_t13ns_query.includes (this.user.query_t13n)) {
+                    let preferred_lang = '';
+                    if (api.supported_langs_query.includes (this.user.query_lang)) {
                         // the current t13n is supported by the server, use it
                         q = this.user.query;
-                        preferred_t13n = this.user.query_t13n;
+                        preferred_lang = this.user.query_lang;
                     } else {
                         // use the best t13n that is supported by the server
-                        for (let scheme of api.supported_t13ns_query) {
-                            if (api.supported_t13ns_query.includes (scheme)) {
-                                q = st.t13n (this.user.query, this.user.query_t13n, scheme);
-                                preferred_t13n = scheme;
+                        for (let scheme of api.supported_langs_query) {
+                            if (api.supported_langs_query.includes (scheme)) {
+                                q = st.xlate (this.user.query, this.user.query_lang, scheme);
+                                preferred_lang = scheme;
                                 break;
                             }
                         }
                     }
                     if (q !== '') {
-                        let params = { 't13n' : preferred_t13n };
+                        let params = { 'lang' : preferred_lang };
                         params[this.user.fulltext ? 'fulltext' : 'q'] = q;
                         let url = api.url + 'headwords/?' + $.param (params);
                         $.getJSON (url, (json) => {
@@ -229,54 +208,54 @@ $ (document).ready (function () {
                     }
                 }
             },
-            on_article: function (event) {
+            on_article: function (headword) {
                 this.clear_article ();
-                let $target = $ (event.currentTarget);
-                window.location.hash = '#' + $.param ({
-                    'article_url'   : get_closest ($target, 'article-url'),
-                    'headword_url'  : get_closest ($target, 'headword-url'),
-                    'dictionary_id' : get_closest ($target, 'dictionary-id'),
-                });
+                window.location.hash = '#' + $.param (
+                    _.pick (headword, ['articles_url', 'headwords_url', 'dictionary_id'])
+                );
             },
             on_hashchange: function (hash) {
-                const data = st.deparam (hash);
-                this.clear_article ();
+                try {
+                    const data = st.deparam (hash);
+                    this.clear_article ();
 
-                this.api = this.get_api (data.dictionary_id);
+                    this.api = this.get_api (data.dictionary_id);
 
-                $.get (this.api.url + data.article_url + '/formats/', (json) => {
-                    this.article_formats = json;
-                    let article = this.get_preferred_view_t13n (json);
-                    article.text = this.sanitize_article (article.text);
-                    this.article = article;
-                    // this.user.article_t13n = article.t13n;
-                    this.article_endpoint = data.article_url;
-                });
-                $.getJSON (this.api.url + data.article_url + '/headwords/', (json) => {
-                    this.headwords = [
-                        {
-                            dict_id: data.dictionary_id,
-                            short_name: 'Headwords',
-                            headwords : json,
-                        }
-                    ];
-                });
-                $.getJSON (this.api.url + data.headword_url + '/context/', (json) => {
-                    this.context = [
-                        {
-                            dict_id: data.dictionary_id,
-                            short_name: 'Context',
-                            headwords : json,
-                        }
-                    ];
-                });
+                    $.get (this.api.url + data.articles_url + '/formats/', (json) => {
+                        this.article_formats = json;
+                        let article = this.get_preferred_doc (json);
+                        article.text = this.sanitize_article (article.text);
+                        this.article = article;
+                        this.article_endpoint = data.articles_url;
+                    });
+                    $.getJSON (this.api.url + data.articles_url + '/headwords/', (json) => {
+                        this.headwords = [
+                            {
+                                dict_id: data.dictionary_id,
+                                short_name: 'Headwords',
+                                headwords : json,
+                            }
+                        ];
+                    });
+                    $.getJSON (this.api.url + data.headwords_url + '/context/', (json) => {
+                        this.context = [
+                            {
+                                dict_id: data.dictionary_id,
+                                short_name: 'Context',
+                                headwords : json,
+                            }
+                        ];
+                    });
+                } catch (e) {
+                    console.log (e);
+                }
             },
         },
     });
 
     let cookie = cookies.get ('user_prefs');
     if (cookie) {
-        app.user = JSON.parse (cookie);
+        Object.assign (app.user, JSON.parse (cookie));
     }
 
     // implement hashtag navigation
@@ -292,6 +271,10 @@ $ (document).ready (function () {
                 Object.assign (api, API); // assign defaults
                 for (const key in json) {
                     const value = json[key];
+                    if (key === 'supported_langs_query') {
+                        api.supported_langs_query = value.map (st.get_t13n);
+                        continue;
+                    }
                     if (typeof value !== 'string')
                         continue;
                     if (key === 'css_url' && value !== '') {
@@ -311,20 +294,33 @@ $ (document).ready (function () {
         }
     });
 
-    // make headwords in headword lists draggable to the search box
-    //
+    // make headwords in headword lists draggable
+
     $ (document).on ('dragstart', '.headword', function (event) {
-        drag_headword (event, get_closest ($ (event.currentTarget), 'headword-normalized-text'));
+        event.originalEvent.dataTransfer.setData (
+            DNDTypeHeadword, st.get_closest ($ (event.currentTarget), 'headword')
+        );
+        st.flash_input ();
     });
+
+    // make selected word in article draggable
+
     $ (document).on ('dragstart', '#article', function (event) {
-        drag_headword (event, window.getSelection ().toString ());
+        event.originalEvent.dataTransfer.setData (DNDTypeHeadword, JSON.stringify ({
+            'normalized_text' : window.getSelection ().toString (),
+            'lang' : st.get_closest ($(event.currentTarget), 'lang'),
+        }));
+        st.flash_input ();
     });
+
+    // make headwords droppable on the search box
 
     $ ('#search').on ('drop', function (event) {
         event.stopPropagation ();
         event.preventDefault ();
-        let data = JSON.parse (event.originalEvent.dataTransfer.getData (DNDTypeHeadword));
-        app.user.query = st.t13n (data.text, data.t13n, app.user.query_t13n);
+        let headword = JSON.parse (event.originalEvent.dataTransfer.getData (DNDTypeHeadword));
+        app.user.query = st.xlate (
+            headword.normalized_text, st.get_t13n (headword.lang), app.user.query_lang);
         app.on_search (event);
     }).on ('dragover', function (event) {
         event.originalEvent.dataTransfer.dropEffect = 'move';

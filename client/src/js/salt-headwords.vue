@@ -3,15 +3,12 @@
     <ul>
       <li v-for="dictionary in dictionaries" class="dictionary" :data-dictionary-id="dictionary.dict_id">
 	<h2>{{ dictionary.short_name }}</h2>
-	<ul v-bind:class="{ selected: dictionary.dict_id == (api ? api.id : 0)}" :data-script="user.query_t13n">
-          <li v-for="headword in dictionary.headwords" v-on:click.prevent="on_article"
+	<ul v-bind:class="{ selected: dictionary.dict_id == (api ? api.id : 0)}" :data-script="user.query_lang">
+          <li v-for="(headword, index) in dictionary.headwords" v-on:click.prevent="on_article"
               class="headword" draggable="true"
-              :data-headword-url="headword.url"
-              :data-article-url="headword.article_url"
-              :data-headword-normalized-text="headword.normalized_text"
-              :data-t13n="headword.t13n"
-              v-bind:class="{ selected: headword.article_url == article_endpoint }">
-            <a v-html="t13n_headword (headword)"></a>
+	      :data-headword="JSON.stringify (headword)"
+              v-bind:class="{ selected: headword.articles_url == article_endpoint }">
+            <a v-html="headword_t13n (headword)"></a>
           </li>
 	</ul>
       </li>
@@ -22,7 +19,7 @@
 <script>
 import $ from 'jquery';
 import sanitize_html from 'sanitize-html';
-import salt_tools from './salt-tools';
+import st from './salt-tools';
 
 export default {
     data : function () {
@@ -45,18 +42,22 @@ export default {
                 },
             });
         },
-        t13n_headword: function (headword) {
+        headword_t13n: function (headword) {
             let html = this.sanitize_headword (headword.text);
-            let to = this.user.query_t13n;
-            if (headword.t13n !== to) {
+	    let from = st.get_t13n (headword.lang);
+            let to = this.user.query_lang;
+            if (from !== to) {
                 let $html = $ ('<span>' + html + '</span>');
-                salt_tools.t13n_text_nodes ($html[0], headword.t13n, to);
+                st.xlate_text_nodes ($html[0], from, to);
                 return $html.html ();
             }
             return html;
         },
         on_article: function (event) {
-            this.$emit ('on_article', event);
+            let $target = $ (event.currentTarget);
+	    let headword = JSON.parse (st.get_closest ($target, 'headword'));
+            headword.dictionary_id = st.get_closest ($target, 'dictionary-id');
+            this.$emit ('on_article', headword);
         }
     },
 }

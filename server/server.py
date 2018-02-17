@@ -19,6 +19,8 @@ from sqlalchemy.sql import text
 
 from werkzeug.routing import Map, Rule
 
+LANG = 'pi-Latn-x-iso'
+
 re_integer_arg = re.compile (r'^[0-9]+$');
 re_normalize_headword = re.compile (r'^[-\[\(√°~]*(?:<sup>\d+</sup>)?(.*?)[-°~\)\]]*$');
 
@@ -79,21 +81,25 @@ def arg (name, default, re, msg = None):
     return arg
 
 
-def make_headword (row, t13n):
-    m = re_normalize_headword.match (row[1])
+def make_headword (row, lang = LANG):
+    """CPD transliteration is almost ISO 15919, but uses uppercase for proper names
+    and â instead of a to signal a syncope a + a. Normalization must conformize
+    these special cases to ISO.
+
+    """
+    text = row[1]
+    text = text.replace ('â', 'a')
+    normalized = text
+    m = re_normalize_headword.match (normalized)
+    if m:
+        normalized = m.group (1).lower ()
     return {
-        'url' : 'headwords/%d' % row[0],
-        'text' : row[1],
-        'normalized_text' : m.group (1).lower () if m else '', # iso has no uppercase
-        'article_url' : 'articles/%d' % row[2],
-        't13n' : t13n
+        'articles_url' : 'articles/%d' % row[2],
+        'headwords_url' : 'headwords/%d' % row[0],
+        'lang' : lang,
+        'normalized_text' : normalized,
+        'text' : text,
     }
-
-
-def make_html_response (obj):
-    resp = flask.Response (obj, mimetype='text/html; charset=utf-8')
-    resp.headers['Access-Control-Allow-Origin'] = '*'
-    return resp
 
 
 def make_json_response (obj):
@@ -102,12 +108,8 @@ def make_json_response (obj):
     return resp
 
 
-def make_headword_response (row, t13n = 'iso'):
-    return make_json_response (make_headword (row, t13n));
-
-
-def make_headwords_response (res, t13n = 'iso'):
-    return make_json_response ([ make_headword (row, t13n) for row in res ]);
+def make_headwords_response (res):
+    return make_json_response ([ make_headword (row) for row in res ]);
 
 
 # need this before first @app.endpoint declaration
@@ -123,7 +125,7 @@ def info ():
         'main_page_url' : app.config['APPLICATION_MAIN_URL'],
         # 'css_url'       : app.config.get ('APPLICATION_CSS_URL', ''),
         'css'           : 'span.smalltext { font-size: smaller }',
-        'supported_t13ns_query' : [ 'iso' ],
+        'supported_langs_query' : [ LANG ],
     }
     return make_json_response (info)
 
@@ -139,7 +141,7 @@ def headword (_id):
         WHERE id = :id
         """, { 'id' : _id })
 
-        return make_headword_response (res.fetchone ())
+        return make_json_response (make_headword (res.fetchone ()));
 
 
 @app.endpoint ('headwords')
@@ -208,6 +210,7 @@ def headwords ():
 
         return make_headwords_response (res)
 
+
 @app.endpoint ('context')
 def context (_id):
     """ Retrieve a list of headwords around a given headword. """
@@ -270,13 +273,13 @@ def article_formats (_id):
         return make_json_response ([
             {
                 'mimetype' : 'text/x-html-literal',
-                't13n' : 'iso',
+                'lang' : LANG,
                 'embeddable' : True,
                 'text' : '<div>%s</div>' % res.fetchone ()[0],
             },
             {
                 'mimetype' : 'text/html',
-                't13n' : 'iso',
+                'lang' : LANG,
                 'canonical' : True,
                 'urls' : [ canonical_url + str (_id) ],
             }

@@ -1,7 +1,11 @@
 const path = require ('path');
 
 module.exports = {
-    entry : './src/js/client.js',
+    entry : [
+        './src/js/client.js',
+        './src/index.html',    // hack to just copy these
+        './src/api-list.json', // files from src to dist
+    ],
     devtool: 'eval-source-map',
     devServer: {
         contentBase: './dist'
@@ -12,6 +16,15 @@ module.exports = {
     },
     module: {
         rules: [
+            {
+                test: [
+                    __dirname + '/src/index.html',
+                    __dirname + '/src/api-list.json',
+                ],
+                use: [
+                    'file-loader?name=[name].[ext]'
+                ]
+            },
             {
                 test: /\.vue$/,
                 use: [
@@ -34,7 +47,7 @@ module.exports = {
                 ]
             },
             {
-                test: /\.(png|svg|jpg|gif)$/,
+                test: /\.(png|jpg|jpeg|gif)$/,
                 use: [
                     'file-loader'
                 ]
@@ -44,11 +57,14 @@ module.exports = {
                 use: [
                     'file-loader?name=webfonts/[name].[ext]'
                 ]
-            }
+            },
          ]
     },
     resolve: {
-        modules: [path.resolve (__dirname, "src"), "node_modules"],
+        modules: [
+            path.resolve (__dirname, "src"),
+            path.resolve (__dirname, "node_modules"),
+        ],
         alias: {
             /* See: https://webpack.js.org/configuration/resolve/#resolve-alias */
             'vue$'           : path.resolve (__dirname, 'node_modules/vue/dist/vue.esm.js'),

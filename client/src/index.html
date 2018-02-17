@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script src="bundle.js"></script>
+    <style type="text/css" id="api-style"></style>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container">
+        <div id="logo"></div>
+	<h1>M-SALT API Client</h1>
+      </div>
+    </header>
+
+    <main class="main">
+      <div id="content">
+	<div id="app" class="container bs-docs-container">
+	  <div class="row">
+
+	    <div class="col-md-3">
+              <div class="dictionary-list">
+		<div>Available Dictionaries:</div>
+		<ul>
+		  <li v-for="api in apis" :data-id="api.id">
+		    <label>
+		      <input v-model="user.active_apis" type="checkbox" :value="api.id"/>
+		      ({{ api.short_name }}) {{ api.name }}
+		    </label>
+		  </li>
+		</ul>
+	      </div>
+
+	      <form id="form" v-on:submit.prevent="on_search">
+		<div>
+		  <label class="sr-only">Search:</label>
+		  <div class="input-group mb-3">
+		    <div class="input-group-prepend">
+		      <button class="btn btn-outline-primary dropdown-toggle" type="button"
+			      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			{{ user.query_lang }}
+		      </button>
+		      <div class="dropdown-menu">
+			<button v-for="tn in supported_lang" v-on:click.prevent="on_user_query_lang"
+				class="dropdown-item" type="button" :data-lang="tn.id">{{ tn.desc }}</button>
+		      </div>
+		    </div>
+		    <input v-model="user.query" v-focus=""
+		           type="text" id="search" placeholder="Search" class="form-control"
+			   :data-script="user.query_lang"
+			   aria-label="Enter the search term."/>
+		    <div class="input-group-append">
+		      <button v-on:click.prevent="on_search" class="btn btn-outline-primary"
+			      type="button">Go</button>
+		    </div>
+		  </div>
+		  <div>
+		    <label>
+		      <input v-model="user.fulltext" type="checkbox" />
+		      Fulltext search
+		    </label>
+		  </div>
+		  <div class="q_in_deva" data-script="deva">{{ user_query_in_deva }}</div>
+		</div>
+	      </form>
+
+	      <div v-if="results.length">
+		<div>Your search gave:</div>
+		<div is="salt-headwords" class="results"
+		     :dictionaries="results"
+		     v-on:on_article="on_article"
+		     :api="api"
+		     :user="user"
+		     :article_endpoint="article_endpoint">
+		</div>
+	      </div>
+
+	    </div>
+
+	    <!-- article -->
+
+	    <article class="article col-md-6">
+	      <div v-if="api &amp;&amp; article">
+		<div class="dropdown article-lang-dropdown">
+		  <button class="btn btn-outline-primary dropdown-toggle" type="button"
+			  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		    {{ user.article_lang }}
+		  </button>
+		  <div class="dropdown-menu">
+		    <button v-for="tn in supported_lang" v-on:click.prevent="on_user_article_lang"
+			    class="dropdown-item" type="button" :data-lang="tn.id">{{ tn.desc }}</button>
+		  </div>
+		</div>
+		<h2><a :href="api.main_page_url">{{api.name}}</a></h2>
+		<div v-if="canonical_url" class="canonical_url">
+		  Cite:
+	          <a :href="canonical_url">{{ canonical_url }}</a>
+		</div>
+		<div v-html="article_t13n" id="article" :data-lang="user.article_lang"></div>
+	      </div>
+	    </article>
+
+	    <div class="col-md-3">
+	      <!-- headwords -->
+
+	      <div is="salt-headwords" v-if="headwords" class="headwords"
+		   :dictionaries="headwords"
+		   v-on:on_article="on_article"
+		   :api="api"
+		   :user="user"
+		   :article_endpoint="article_endpoint">
+	      </div>
+
+	      <!-- context -->
+
+	      <div is="salt-headwords" v-if="context" class="context"
+		   :dictionaries="context"
+		   v-on:on_article="on_article"
+		   :api="api"
+		   :user="user"
+		   :article_endpoint="article_endpoint">
+	      </div>
+	    </div>
+
+	  </div>
+	</div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <span class="text-muted">This is a sticky footer.</span>
+      </div>
+    </footer>
+  </body>
+</html>
