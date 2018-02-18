@@ -28,7 +28,7 @@
     "webpack-dev-server": "^2.11.1"
   },
   "scripts": {
-    "build": "webpack",
-    "server": "webpack-dev-server --open"
+    "build": "webpack --no-color",
+    "server": "webpack-dev-server --open --no-color"
   }
 }

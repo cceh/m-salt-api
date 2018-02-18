@@ -46,9 +46,9 @@ export default {
             let html = this.sanitize_headword (headword.text);
 	    let from = st.get_t13n (headword.lang);
             let to = this.user.query_lang;
-            if (from !== to) {
+            if (from[0] !== to) {
                 let $html = $ ('<span>' + html + '</span>');
-                st.xlate_text_nodes ($html[0], from, to);
+                st.xlate_dom ($html[0], from, to);
                 return $html.html ();
             }
             return html;

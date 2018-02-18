@@ -62,42 +62,43 @@ Transliterations
 ----------------
 
 Transliteration (t13n) is the act of representing Devanagari script in Latin
-characters.
+script.
 
-The API defines the following private use subtags for indication of
-transliteration:
+The API defines the following `private use language subtags
+<https://tools.ietf.org/html/rfc5646#section-2.2.7>`_ to indicate
+transliterations to Latin script:
 
-============= ============== ===========================================
-subtag        Name           Description
-============= ============== ===========================================
-Deva          Devanagari     (no transliteration)
-Latn-x-hk     Harvard-Kyoto  https://en.wikipedia.org/wiki/Harvard-Kyoto
-Latn-x-iast   IAST           https://en.wikipedia.org/wiki/IAST
-Latn-x-iso    ISO 15919      https://en.wikipedia.org/wiki/ISO_15919
-Latn-x-itrans ITRANS         https://en.wikipedia.org/wiki/ITRANS
-Latn-x-slp1   SLP1           https://en.wikipedia.org/wiki/SLP1
-Latn-x-vh     Velthuis       https://en.wikipedia.org/wiki/Velthuis
-Latn-x-wx     WX notation    https://en.wikipedia.org/wiki/WX_notation
-============= ============== ===========================================
+=============== ============== ===========================================
+subtag          Name           Description
+=============== ============== ===========================================
+Deva            Devanagari     (official subtag, no transliteration)
+Latn-x-hk       Harvard-Kyoto  https://en.wikipedia.org/wiki/Harvard-Kyoto
+Latn-x-iast     IAST           https://en.wikipedia.org/wiki/IAST
+Latn-x-iso      ISO 15919      https://en.wikipedia.org/wiki/ISO_15919
+Latn-x-itrans   ITRANS         https://en.wikipedia.org/wiki/ITRANS
+Latn-x-slp1     SLP1           https://en.wikipedia.org/wiki/SLP1
+Latn-x-velthuis Velthuis       https://en.wikipedia.org/wiki/Velthuis
+Latn-x-wx       WX notation    https://en.wikipedia.org/wiki/WX_notation
+=============== ============== ===========================================
 
-In the server's response the subtag MAY be preceded by a language tag.  It is
-the client's responsibility to extract the t13n from a language tag. These are
-valid tags:
+Variants of these transliterations may be indicatedby appending another subtag:
+eg. pi-Latn-x-iso-cpd (the ISO 15919 variant used bay the Critical Pāli
+Dictionary).  Clients SHOULD ignore these additional subtags unless they have
+gained knowledge about these tags by ways that lie outside this specification.
 
+The server MUST answer with valid RFC5646 language tags, that is, it should
+prepend a valid language tag.  These are valid tags:
+
+ - pi-Latn-x-iso-cpd
  - sa-Latn-x-iso
  - pi-Deva
- - sa-x-hk
  - x-slp1
-
-Different dictionaries may have adopted different transliteraton schemes.  The
-client needs to know which transliterations the server accepts for queries, and
-whicht transliteration was used in the server's answers.
 
 When declaring transliterations in HTML use the lang attribute. Examples:
 
+ - <span land="pi-Latn-x-iso-cpd">...</span>
  - <span land="sa-Latn-x-iso">...</span>
  - <span lang="pi-Deva">...</span>
- - <span lang="sa-x-hk">...</span>
  - <span lang="x-slp1">...</span>
 
 
@@ -105,6 +106,14 @@ See also:
 
  - https://en.wikipedia.org/wiki/Devanagari_transliteration
  - https://tools.ietf.org/html/rfc5646#section-2.2.7
+ - https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
+
+TODO: or should we use an alternative method using the *t* extension::
+
+  sa-Latn-t-sa-deva-m0-slp1
+
+ - https://tools.ietf.org/html/rfc6497
+ - http://cldr.unicode.org/index/cldr-spec/transliteration-guidelines#Indic
 
 
 .. _embed:

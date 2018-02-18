@@ -19,7 +19,7 @@ from sqlalchemy.sql import text
 
 from werkzeug.routing import Map, Rule
 
-LANG = 'pi-Latn-x-iso'
+LANG = 'pi-Latn-x-iso-cpd'
 
 re_integer_arg = re.compile (r'^[0-9]+$');
 re_normalize_headword = re.compile (r'^[-\[\(√°~]*(?:<sup>\d+</sup>)?(.*?)[-°~\)\]]*$');

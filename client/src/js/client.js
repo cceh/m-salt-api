@@ -8,7 +8,6 @@
 /*
  * TODO:
  *
- * implement history with hashtag
  */
 
 import $ from 'jquery';
@@ -68,14 +67,14 @@ $ (document).ready (function () {
             // the t13n schemes we support in the order they should appear in the
             // dropdown menu
             supported_lang: [
-                { 'id' : 'deva',   'desc' : 'Devanagari' },
-                { 'id' : 'iso',    'desc' : 'ISO 15919' },
-                { 'id' : 'iast',   'desc' : 'IAST' },
-                { 'id' : 'slp1',   'desc' : 'SLP1' },
-                { 'id' : 'hk',     'desc' : 'Harvard-Kyoto' },
-                { 'id' : 'vh',     'desc' : 'Velthuis' },
-                { 'id' : 'wx',     'desc' : 'WX notation' },
-                { 'id' : 'itrans', 'desc' : 'ITRANS' },
+                { 'id' : 'deva',     'desc' : 'Devanagari' },
+                { 'id' : 'iso',      'desc' : 'ISO 15919' },
+                { 'id' : 'iast',     'desc' : 'IAST' },
+                { 'id' : 'slp1',     'desc' : 'SLP1' },
+                { 'id' : 'hk',       'desc' : 'Harvard-Kyoto' },
+                { 'id' : 'velthuis', 'desc' : 'Velthuis' },
+                { 'id' : 'wx',       'desc' : 'WX notation' },
+                { 'id' : 'itrans',   'desc' : 'ITRANS' },
             ],
 
             // model of the user controls
@@ -109,10 +108,12 @@ $ (document).ready (function () {
                 if (this.article) {
                     let from = st.get_t13n (this.article.lang);
                     let to = this.user.article_lang;
+                    if (from[0] === to)
+                        return this.article.text;
                     let $html = $(this.article.text);
                     // FIXME: make this configurable
                     $html.find ('b').each (function (index, elem) {
-                        st.xlate_text_nodes (elem, from, to);
+                        st.xlate_dom (elem, from, to);
                         $ (elem).attr ('data-script', to);
                     });
                     return $html.html ();
@@ -272,7 +273,7 @@ $ (document).ready (function () {
                 for (const key in json) {
                     const value = json[key];
                     if (key === 'supported_langs_query') {
-                        api.supported_langs_query = value.map (st.get_t13n);
+                        api.supported_langs_query = value.map (x => st.get_t13n (x)[0]);
                         continue;
                     }
                     if (typeof value !== 'string')

@@ -3,12 +3,10 @@ const path = require ('path');
 module.exports = {
     entry : [
         './src/js/client.js',
-        './src/index.html',    // hack to just copy these
-        './src/api-list.json', // files from src to dist
     ],
     devtool: 'eval-source-map',
     devServer: {
-        contentBase: './dist'
+        contentBase: './src',  // so we don't have to copy files to dist
     },
     output : {
         filename: 'bundle.js',
@@ -16,15 +14,6 @@ module.exports = {
     },
     module: {
         rules: [
-            {
-                test: [
-                    __dirname + '/src/index.html',
-                    __dirname + '/src/api-list.json',
-                ],
-                use: [
-                    'file-loader?name=[name].[ext]'
-                ]
-            },
             {
                 test: /\.vue$/,
                 use: [

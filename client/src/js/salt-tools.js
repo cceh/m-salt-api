@@ -1,25 +1,85 @@
 import $ from 'jquery';
-import Sanscript from 'sanscript';
+import sanscript from 'sanscript';
 
-// add aliases to conform to API specs
-Sanscript.addBrahmicScheme ('deva', Sanscript.schemes.devanagari);
-Sanscript.addRomanScheme   ('vh',   Sanscript.schemes.velthuis);
+// Add aliases to conform to API specs.  FIXME: vedic accents will not work
+// because the library uses the hardcoded name 'devanagari' to enable those.
+sanscript.addBrahmicScheme ('deva', sanscript.schemes.devanagari);
 
-// add iso (ISO 15919) scheme
+// Add an iso (ISO 15919) scheme from a modified iast scheme.
 // See: https://en.wikipedia.org/wiki/ISO_15919#Comparison_with_UNRSGN_and_IAST
-Sanscript.addRomanScheme (
-    'iso',
-    {
-        vowels: 'a ā i ī u ū r̥ r̥̄ l̥ l̥̄ ē e ai ō o au'.split(' '),
-        other_marks: ['ṁ', 'ḥ', '~'],
-        virama: [''],
-        consonants: 'k kh g gh ṅ c ch j jh ñ ṭ ṭh ḍ ḍh ṇ t th d dh n p ph b bh m y r l v ś ṣ s h ḻ kṣ jñ'.split(' '),
-        symbols: "0 1 2 3 4 5 6 7 8 9 oṃ ' । ॥".split(' ')
-    }
-);
+let iso = $.extend (true, {}, sanscript.schemes.iast);
+iso.vowels = 'a ā i ī u ū r̥ r̥̄ l̥ l̥̄ ē e ai ō o au'.split(' ');
+iso.other_marks = ['ṁ', 'ḥ', '~'];
+sanscript.addRomanScheme ('iso', iso);
+
+/**
+ * Transliterate string.
+ *
+ * Applies the given t13n to a atring.
+ *
+ * @function xlate
+ *
+ * @param {node} root   - The root node
+ * @param {string} from - The source t13n
+ * @param {string} to   - The destination t13n
+ *
+ * @returns A transliterated string.
+ */
 
 function xlate (text, from, to) {
-    return Sanscript.t (text, from, to);
+    if (Array.isArray (from)) {
+        if (from.length > 1 && from[1] === 'cpd') {
+            from[0] = from[0].toLowerCase ().replace ('â', 'a');
+        }
+        from = from[0];
+    }
+    return sanscript.t (text, from, to);
+}
+
+/**
+ * Transliterate text nodes.
+ *
+ * Applies the given t13n to a DOM fragment, modifying in place all text nodes
+ * under the given root element.
+ *
+ * @function xlate_dom
+ *
+ * @param {node} root   - The root node
+ * @param {string} from - The source t13n
+ * @param {string} to   - The destination t13n
+ */
+
+function xlate_dom (root, from, to) {
+    if (root.nodeType == 3) {
+        root.nodeValue = xlate (root.nodeValue, from, to);
+    } else {
+        for (let i = 0, len = root.childNodes.length; i < len; ++i) {
+            xlate_dom (root.childNodes[i], from, to);
+        }
+    }
+}
+
+/**
+ * Extract the language subtag used to indicate t13n.
+ *
+ * @function get_t13n
+ *
+ * @param {string} lang - A full language tag, see API specs.
+ *
+ * @returns {array} Array of t13n subtags.
+ */
+
+function get_t13n (lang) {
+    const tags = lang.split ('-');
+    const i = tags.findIndex (el => el === 'x');
+
+    if (0 <= i && i < tags.length)
+        return tags.slice (i + 1);
+
+    if (tags.findIndex (el => el === 'Deva') >= 0)
+        return ['deva'];
+
+    return ['und']; // undefined
 }
 
 /**
@@ -53,29 +113,6 @@ function scope_css (src_css, root) {
 }
 
 /**
- * Transliterate text nodes.
- *
- * Applies the given t13n to all text nodes under the given root element.
- * Modifies the text nodes in place.
- *
- * @function xlate_text_nodes
- *
- * @param {} node - The root node
- * @param {} from - The source t13n
- * @param {} to   - The destination t13n
- */
-
-function xlate_text_nodes (node, from, to) {
-    if (node.nodeType == 3) {
-        node.nodeValue = Sanscript.t (node.nodeValue, from, to);
-    } else {
-        for (var i = 0, len = node.childNodes.length; i < len; ++i) {
-            xlate_text_nodes (node.childNodes[i], from, to);
-        }
-    }
-}
-
-/**
  * The inverse of the jQuery.param () function.
  *
  * @function deparam
@@ -86,21 +123,12 @@ function xlate_text_nodes (node, from, to) {
  */
 
 function deparam (query_string) {
-    var params = {};
+    let params = {};
     query_string.split ('&').forEach (item => {
-        var s = item.split ('=').map (i => decodeURIComponent (i.replace ('+', ' ')));
+        let s = item.split ('=').map (i => decodeURIComponent (i.replace ('+', ' ')));
         params[s[0]] = s[1];
     });
     return params;
-}
-
-function get_t13n (lang) {
-    let i = lang.indexOf ('x-');
-    if (i > -1)
-        return lang.substring (i + 2);
-    if (lang.indexOf ('Deva') > -1)
-        return 'deva'
-    return lang;
 }
 
 function get_closest ($target, data_attr) {
@@ -116,11 +144,11 @@ function flash_input () {
 }
 
 export default {
-    scope_css        : scope_css,
-    xlate            : xlate,
-    xlate_text_nodes : xlate_text_nodes,
-    get_t13n         : get_t13n,
-    deparam          : deparam,
-    get_closest      : get_closest,
-    flash_input      : flash_input,
+    xlate       : xlate,
+    xlate_dom   : xlate_dom,
+    get_t13n    : get_t13n,
+    scope_css   : scope_css,
+    deparam     : deparam,
+    get_closest : get_closest,
+    flash_input : flash_input,
 };
