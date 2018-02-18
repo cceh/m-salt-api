@@ -82,7 +82,7 @@ Latn-x-wx       WX notation    https://en.wikipedia.org/wiki/WX_notation
 =============== ============== ===========================================
 
 Variants of these transliterations may be indicatedby appending another subtag:
-eg. pi-Latn-x-iso-cpd (the ISO 15919 variant used bay the Critical Pāli
+eg. Latn-x-iso-cpd (the ISO 15919 variant used bay the Critical Pāli
 Dictionary).  Clients SHOULD ignore these additional subtags unless they have
 gained knowledge about these tags by ways that lie outside this specification.
 
@@ -108,12 +108,13 @@ See also:
  - https://tools.ietf.org/html/rfc5646#section-2.2.7
  - https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
 
-TODO: or should we use an alternative method using the *t* extension::
+..
+   TODO: or should we use an alternative method using the *t* extension::
 
-  sa-Latn-t-sa-deva-m0-slp1
+   sa-Latn-t-sa-deva-m0-slp1
 
- - https://tools.ietf.org/html/rfc6497
- - http://cldr.unicode.org/index/cldr-spec/transliteration-guidelines#Indic
+    - https://tools.ietf.org/html/rfc6497
+    - http://cldr.unicode.org/index/cldr-spec/transliteration-guidelines#Indic
 
 
 .. _embed:
@@ -208,21 +209,21 @@ Endpoints
         {
           "articles_url": "articles/11411",
           "normalized_text": "a-hi\u1e41sa",
-          "lang": "Latn-x-iso",
+          "lang": "pi-Latn-x-iso",
           "text": "[a-hi\u1e41sa",
           "headwords_url": "headwords/43681"
         },
         {
           "articles_url": "articles/11412",
           "normalized_text": "a-hi\u1e41sa",
-          "lang": "Latn-x-iso",
+          "lang": "pi-Latn-x-iso",
           "text": "a-hi\u1e41sa",
           "headwords_url": "headwords/43685"
         },
         {
           "articles_url": "articles/11413",
           "normalized_text": "a-hi\u1e41saka",
-          "lang": "Latn-x-iso",
+          "lang": "pi-Latn-x-iso",
           "text": "a-hi\u1e41saka",
           "headwords_url": "headwords/43687"
         }
@@ -232,7 +233,7 @@ Endpoints
    :query fulltext: Fulltext query. Restrict the result to headwords of articles
                     matching this text.
    :query lang: :ref:`transliteration <t13n>` scheme of the `q` and `fulltext`
-                parameters. Default "Latn-x-iso".
+                parameters. Default "x-iso".
    :query limit: limit number. Default 100.
    :query offset: offset number. Default 0.
    :resheader Content-Type: application/json
@@ -282,7 +283,7 @@ Endpoints
       {
         "articles_url": "articles/11421",
         "normalized_text": "a-hi\u1e41s\u0101",
-        "lang": "Latn-x-iso",
+        "lang": "pi-Latn-x-iso",
         "text": "a-hi\u1e41s\u0101",
         "headwords_url": "headwords/43704"
       }
@@ -296,7 +297,7 @@ Endpoints
    :resjsonobj string normalized_text: the headword as it would be sent in the
                                        `q` parameter.
    :resjsonobj string lang: The :ref:`transliteration <t13n>` applied to the
-                            headword. Default "Latn-x-iso".
+                            headword. Default "x-iso".
    :resjsonobj string text: the headword. :ref:`Some HTML <embed>` allowed.
 
 
@@ -322,21 +323,21 @@ Endpoints
         {
           "articles_url": "articles/11420",
           "normalized_text": "a-hi\u1e41sayat",
-          "lang": "Latn-x-iso",
+          "lang": "pi-Latn-x-iso",
           "text": "a-hi\u1e41sayat",
           "headwords_url": "headwords/43700"
         },
         {
           "articles_url": "articles/11421",
           "normalized_text": "a-hi\u1e41s\u0101",
-          "lang": "Latn-x-iso",
+          "lang": "pi-Latn-x-iso",
           "text": "a-hi\u1e41s\u0101",
           "headwords_url": "headwords/43704"
         },
         {
           "articles_url": "articles/11437",
           "normalized_text": "a-hita",
-          "lang": "Latn-x-iso",
+          "lang": "pi-Latn-x-iso",
           "text": "a-hita",
           "headwords_url": "headwords/43733"
         }
@@ -409,21 +410,21 @@ Endpoints
         {
           "mimetype" : "text/x-html-literal",
           "embeddable": true,
-          "lang" : "Latn-x-iso",
+          "lang" : "pi-Latn-x-iso",
           "text" : "<div>...</div>"
         },
         {
           "mimetype" : "text/html",
           "embeddable": true,
           "canonical": true,
-          "lang" : "Latn-x-iso",
+          "lang" : "pi-Latn-x-iso",
           "root" : "div.article",
           "urls"  : ["https://..."]
         },
         {
           "mimetype" : "text/html",
           "embeddable": true,
-          "lang" : "deva",
+          "lang" : "pi-Deva",
           "root" : "div.article",
           "urls" : ["https://..."]
         },
@@ -451,7 +452,7 @@ Endpoints
    :resjsonobj boolean canonical: Optional.  True if this URL is the citeable
                                   canonical URL for the article.
    :resjsonobj string lang: The :ref:`transliteration <t13n>` applied to that
-                            article. Default "Latn-x-iso".
+                            article. Default "x-iso".
    :resjsonobj url urls: Optional. An array of URLs to a series of resources
                          containing the article.
    :resjsonobj string text: Optional. Alternatively the article can be included
@@ -523,14 +524,14 @@ Endpoints
         {
           "articles_url": "articles/11412",
           "normalized_text": "a-hi\u1e41sa",
-          "lang": "Latn-x-iso",
+          "lang": "pi-Latn-x-iso",
           "text": "a-hi\u1e41sa",
           "headwords_url": "headwords/43685"
         },
         {
           "articles_url": "articles/11412",
           "normalized_text": "a-hi\u1e41sat",
-          "lang": "Latn-x-iso",
+          "lang": "pi-Latn-x-iso",
           "text": "a-hi\u1e41sat",
           "headwords_url": "headwords/43683"
         }

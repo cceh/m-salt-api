@@ -200,14 +200,14 @@ object.</p>
 <div class="section" id="transliterations">
 <span id="t13n"></span><h3>Transliterations<a class="headerlink" href="#transliterations" title="Permalink to this headline">¶</a></h3>
 <p>Transliteration (t13n) is the act of representing Devanagari script in Latin
-characters.</p>
-<p>The API defines the following private use subtags for indication of
-transliteration:</p>
+script.</p>
+<p>The API defines the following <a class="reference external" href="https://tools.ietf.org/html/rfc5646#section-2.2.7">private use language subtags</a> to indicate
+transliterations to Latin script:</p>
 <table border="1" class="docutils">
 <colgroup>
+<col width="21%" />
 <col width="19%" />
-<col width="20%" />
-<col width="61%" />
+<col width="60%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">subtag</th>
@@ -218,7 +218,7 @@ transliteration:</p>
 <tbody valign="top">
 <tr class="row-even"><td>Deva</td>
 <td>Devanagari</td>
-<td>(no transliteration)</td>
+<td>(official subtag, no transliteration)</td>
 </tr>
 <tr class="row-odd"><td>Latn-x-hk</td>
 <td>Harvard-Kyoto</td>
@@ -240,7 +240,7 @@ transliteration:</p>
 <td>SLP1</td>
 <td><a class="reference external" href="https://en.wikipedia.org/wiki/SLP1">https://en.wikipedia.org/wiki/SLP1</a></td>
 </tr>
-<tr class="row-even"><td>Latn-x-vh</td>
+<tr class="row-even"><td>Latn-x-velthuis</td>
 <td>Velthuis</td>
 <td><a class="reference external" href="https://en.wikipedia.org/wiki/Velthuis">https://en.wikipedia.org/wiki/Velthuis</a></td>
 </tr>
@@ -250,26 +250,26 @@ transliteration:</p>
 </tr>
 </tbody>
 </table>
-<p>In the server’s response the subtag MAY be preceded by a language tag.  It is
-the client’s responsibility to extract the t13n from a language tag. These are
-valid tags:</p>
+<p>Variants of these transliterations may be indicatedby appending another subtag:
+eg. Latn-x-iso-cpd (the ISO 15919 variant used bay the Critical Pāli
+Dictionary).  Clients SHOULD ignore these additional subtags unless they have
+gained knowledge about these tags by ways that lie outside this specification.</p>
+<p>The server MUST answer with valid RFC5646 language tags, that is, it should
+prepend a valid language tag.  These are valid tags:</p>
 <blockquote>
 <div><ul class="simple">
+<li>pi-Latn-x-iso-cpd</li>
 <li>sa-Latn-x-iso</li>
 <li>pi-Deva</li>
-<li>sa-x-hk</li>
 <li>x-slp1</li>
 </ul>
 </div></blockquote>
-<p>Different dictionaries may have adopted different transliteraton schemes.  The
-client needs to know which transliterations the server accepts for queries, and
-whicht transliteration was used in the server’s answers.</p>
 <p>When declaring transliterations in HTML use the lang attribute. Examples:</p>
 <blockquote>
 <div><ul class="simple">
+<li>&lt;span land=”pi-Latn-x-iso-cpd”&gt;…&lt;/span&gt;</li>
 <li>&lt;span land=”sa-Latn-x-iso”&gt;…&lt;/span&gt;</li>
 <li>&lt;span lang=”pi-Deva”&gt;…&lt;/span&gt;</li>
-<li>&lt;span lang=”sa-x-hk”&gt;…&lt;/span&gt;</li>
 <li>&lt;span lang=”x-slp1”&gt;…&lt;/span&gt;</li>
 </ul>
 </div></blockquote>
@@ -278,6 +278,7 @@ whicht transliteration was used in the server’s answers.</p>
 <div><ul class="simple">
 <li><a class="reference external" href="https://en.wikipedia.org/wiki/Devanagari_transliteration">https://en.wikipedia.org/wiki/Devanagari_transliteration</a></li>
 <li><a class="reference external" href="https://tools.ietf.org/html/rfc5646#section-2.2.7">https://tools.ietf.org/html/rfc5646#section-2.2.7</a></li>
+<li><a class="reference external" href="https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry">https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry</a></li>
 </ul>
 </div></blockquote>
 </div>
@@ -376,21 +377,21 @@ scheme if the server accepts it.</p>
   <span class="p">{</span>
     <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;articles/11411&quot;</span><span class="p">,</span>
     <span class="nt">&quot;normalized_text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sa&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;Latn-x-iso&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;pi-Latn-x-iso&quot;</span><span class="p">,</span>
     <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;[a-hi\u1e41sa&quot;</span><span class="p">,</span>
     <span class="nt">&quot;headwords_url&quot;</span><span class="p">:</span> <span class="s2">&quot;headwords/43681&quot;</span>
   <span class="p">},</span>
   <span class="p">{</span>
     <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;articles/11412&quot;</span><span class="p">,</span>
     <span class="nt">&quot;normalized_text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sa&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;Latn-x-iso&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;pi-Latn-x-iso&quot;</span><span class="p">,</span>
     <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sa&quot;</span><span class="p">,</span>
     <span class="nt">&quot;headwords_url&quot;</span><span class="p">:</span> <span class="s2">&quot;headwords/43685&quot;</span>
   <span class="p">},</span>
   <span class="p">{</span>
     <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;articles/11413&quot;</span><span class="p">,</span>
     <span class="nt">&quot;normalized_text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41saka&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;Latn-x-iso&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;pi-Latn-x-iso&quot;</span><span class="p">,</span>
     <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41saka&quot;</span><span class="p">,</span>
     <span class="nt">&quot;headwords_url&quot;</span><span class="p">:</span> <span class="s2">&quot;headwords/43687&quot;</span>
   <span class="p">}</span>
@@ -407,7 +408,7 @@ scheme if the server accepts it.</p>
 <li><strong>fulltext</strong> – Fulltext query. Restrict the result to headwords of articles
 matching this text.</li>
 <li><strong>lang</strong> – <a class="reference internal" href="#t13n"><span class="std std-ref">transliteration</span></a> scheme of the <cite>q</cite> and <cite>fulltext</cite>
-parameters. Default “Latn-x-iso”.</li>
+parameters. Default “x-iso”.</li>
 <li><strong>limit</strong> – limit number. Default 100.</li>
 <li><strong>offset</strong> – offset number. Default 0.</li>
 </ul>
@@ -459,7 +460,7 @@ request.</p>
 <span class="p">{</span>
   <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;articles/11421&quot;</span><span class="p">,</span>
   <span class="nt">&quot;normalized_text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41s\u0101&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;Latn-x-iso&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;pi-Latn-x-iso&quot;</span><span class="p">,</span>
   <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41s\u0101&quot;</span><span class="p">,</span>
   <span class="nt">&quot;headwords_url&quot;</span><span class="p">:</span> <span class="s2">&quot;headwords/43704&quot;</span>
 <span class="p">}</span>
@@ -493,7 +494,7 @@ request.</p>
 <li><strong>normalized_text</strong> (<em>string</em>) – the headword as it would be sent in the
 <cite>q</cite> parameter.</li>
 <li><strong>lang</strong> (<em>string</em>) – The <a class="reference internal" href="#t13n"><span class="std std-ref">transliteration</span></a> applied to the
-headword. Default “Latn-x-iso”.</li>
+headword. Default “x-iso”.</li>
 <li><strong>text</strong> (<em>string</em>) – the headword. <a class="reference internal" href="#embed"><span class="std std-ref">Some HTML</span></a> allowed.</li>
 </ul>
 </td>
@@ -519,21 +520,21 @@ headword. Default “Latn-x-iso”.</li>
   <span class="p">{</span>
     <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;articles/11420&quot;</span><span class="p">,</span>
     <span class="nt">&quot;normalized_text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sayat&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;Latn-x-iso&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;pi-Latn-x-iso&quot;</span><span class="p">,</span>
     <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sayat&quot;</span><span class="p">,</span>
     <span class="nt">&quot;headwords_url&quot;</span><span class="p">:</span> <span class="s2">&quot;headwords/43700&quot;</span>
   <span class="p">},</span>
   <span class="p">{</span>
     <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;articles/11421&quot;</span><span class="p">,</span>
     <span class="nt">&quot;normalized_text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41s\u0101&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;Latn-x-iso&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;pi-Latn-x-iso&quot;</span><span class="p">,</span>
     <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41s\u0101&quot;</span><span class="p">,</span>
     <span class="nt">&quot;headwords_url&quot;</span><span class="p">:</span> <span class="s2">&quot;headwords/43704&quot;</span>
   <span class="p">},</span>
   <span class="p">{</span>
     <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;articles/11437&quot;</span><span class="p">,</span>
     <span class="nt">&quot;normalized_text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hita&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;Latn-x-iso&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;pi-Latn-x-iso&quot;</span><span class="p">,</span>
     <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hita&quot;</span><span class="p">,</span>
     <span class="nt">&quot;headwords_url&quot;</span><span class="p">:</span> <span class="s2">&quot;headwords/43733&quot;</span>
   <span class="p">}</span>
@@ -644,21 +645,21 @@ and does not contain URL special characters.</li>
   <span class="p">{</span>
     <span class="nt">&quot;mimetype&quot;</span> <span class="p">:</span> <span class="s2">&quot;text/x-html-literal&quot;</span><span class="p">,</span>
     <span class="nt">&quot;embeddable&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-    <span class="nt">&quot;lang&quot;</span> <span class="p">:</span> <span class="s2">&quot;Latn-x-iso&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;lang&quot;</span> <span class="p">:</span> <span class="s2">&quot;pi-Latn-x-iso&quot;</span><span class="p">,</span>
     <span class="nt">&quot;text&quot;</span> <span class="p">:</span> <span class="s2">&quot;&lt;div&gt;...&lt;/div&gt;&quot;</span>
   <span class="p">},</span>
   <span class="p">{</span>
     <span class="nt">&quot;mimetype&quot;</span> <span class="p">:</span> <span class="s2">&quot;text/html&quot;</span><span class="p">,</span>
     <span class="nt">&quot;embeddable&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
     <span class="nt">&quot;canonical&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-    <span class="nt">&quot;lang&quot;</span> <span class="p">:</span> <span class="s2">&quot;Latn-x-iso&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;lang&quot;</span> <span class="p">:</span> <span class="s2">&quot;pi-Latn-x-iso&quot;</span><span class="p">,</span>
     <span class="nt">&quot;root&quot;</span> <span class="p">:</span> <span class="s2">&quot;div.article&quot;</span><span class="p">,</span>
     <span class="nt">&quot;urls&quot;</span>  <span class="p">:</span> <span class="p">[</span><span class="s2">&quot;https://...&quot;</span><span class="p">]</span>
   <span class="p">},</span>
   <span class="p">{</span>
     <span class="nt">&quot;mimetype&quot;</span> <span class="p">:</span> <span class="s2">&quot;text/html&quot;</span><span class="p">,</span>
     <span class="nt">&quot;embeddable&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-    <span class="nt">&quot;lang&quot;</span> <span class="p">:</span> <span class="s2">&quot;deva&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;lang&quot;</span> <span class="p">:</span> <span class="s2">&quot;pi-Deva&quot;</span><span class="p">,</span>
     <span class="nt">&quot;root&quot;</span> <span class="p">:</span> <span class="s2">&quot;div.article&quot;</span><span class="p">,</span>
     <span class="nt">&quot;urls&quot;</span> <span class="p">:</span> <span class="p">[</span><span class="s2">&quot;https://...&quot;</span><span class="p">]</span>
   <span class="p">},</span>
@@ -706,7 +707,7 @@ embeddable.</li>
 <li><strong>canonical</strong> (<em>boolean</em>) – Optional.  True if this URL is the citeable
 canonical URL for the article.</li>
 <li><strong>lang</strong> (<em>string</em>) – The <a class="reference internal" href="#t13n"><span class="std std-ref">transliteration</span></a> applied to that
-article. Default “Latn-x-iso”.</li>
+article. Default “x-iso”.</li>
 <li><strong>urls</strong> (<em>url</em>) – Optional. An array of URLs to a series of resources
 containing the article.</li>
 <li><strong>text</strong> (<em>string</em>) – Optional. Alternatively the article can be included
@@ -770,14 +771,14 @@ extraneous information like headers, footers, navigation bars, etc. Default
   <span class="p">{</span>
     <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;articles/11412&quot;</span><span class="p">,</span>
     <span class="nt">&quot;normalized_text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sa&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;Latn-x-iso&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;pi-Latn-x-iso&quot;</span><span class="p">,</span>
     <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sa&quot;</span><span class="p">,</span>
     <span class="nt">&quot;headwords_url&quot;</span><span class="p">:</span> <span class="s2">&quot;headwords/43685&quot;</span>
   <span class="p">},</span>
   <span class="p">{</span>
     <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;articles/11412&quot;</span><span class="p">,</span>
     <span class="nt">&quot;normalized_text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sat&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;Latn-x-iso&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;pi-Latn-x-iso&quot;</span><span class="p">,</span>
     <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41sat&quot;</span><span class="p">,</span>
     <span class="nt">&quot;headwords_url&quot;</span><span class="p">:</span> <span class="s2">&quot;headwords/43683&quot;</span>
   <span class="p">}</span>

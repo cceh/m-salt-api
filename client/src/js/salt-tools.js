@@ -29,7 +29,7 @@ sanscript.addRomanScheme ('iso', iso);
 function xlate (text, from, to) {
     if (Array.isArray (from)) {
         if (from.length > 1 && from[1] === 'cpd') {
-            from[0] = from[0].toLowerCase ().replace ('â', 'a');
+            text = text.toLowerCase ().replace ('â', 'a');
         }
         from = from[0];
     }

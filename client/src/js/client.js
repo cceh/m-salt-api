@@ -307,9 +307,15 @@ $ (document).ready (function () {
     // make selected word in article draggable
 
     $ (document).on ('dragstart', '#article', function (event) {
+        let lang = st.get_closest ($(event.target), 'script');
+        if (lang) {
+            lang = 'x-' + lang; // drop handler expects a language tag
+        } else {
+            lang = st.get_closest ($(event.currentTarget), 'lang');
+        }
         event.originalEvent.dataTransfer.setData (DNDTypeHeadword, JSON.stringify ({
             'normalized_text' : window.getSelection ().toString (),
-            'lang' : st.get_closest ($(event.currentTarget), 'lang'),
+            'lang' : lang,
         }));
         st.flash_input ();
     });
