@@ -12,10 +12,15 @@ iso.vowels = 'a ā i ī u ū r̥ r̥̄ l̥ l̥̄ ē e ai ō o au'.split(' ');
 iso.other_marks = ['ṁ', 'ḥ', '~'];
 sanscript.addRomanScheme ('iso', iso);
 
+
+function need_t13n (from, to) {
+    return get_t13n (from) !== get_t13n (to);
+}
+
 /**
  * Transliterate string.
  *
- * Applies the given t13n to a atring.
+ * Applies the given t13n to a string.
  *
  * @function xlate
  *
@@ -27,13 +32,20 @@ sanscript.addRomanScheme ('iso', iso);
  */
 
 function xlate (text, from, to) {
-    if (Array.isArray (from)) {
-        if (from.length > 1 && from[1] === 'cpd') {
-            text = text.toLowerCase ().replace ('â', 'a');
-        }
-        from = from[0];
+    from = get_t13n (from);
+    to = get_t13n (to);
+    if (from === to)
+        return text;
+    if (['x-iso', 'x-iast', 'x-velthuis'].includes (from)) {
+        // cheap fix for non-standard iso, iast, and velthuis
+        text = text.toLowerCase ();
     }
-    return sanscript.t (text, from, to);
+    try {
+        return sanscript.t (text, from.slice (2), to.slice (2));
+    }
+    catch (e) {
+        return 'lost in transliteration';
+    }
 }
 
 /**
@@ -66,7 +78,7 @@ function xlate_dom (root, from, to) {
  *
  * @param {string} lang - A full language tag, see API specs.
  *
- * @returns {array} Array of t13n subtags.
+ * @returns {string} The t13n subtag, eg. x-iso
  */
 
 function get_t13n (lang) {
@@ -74,12 +86,12 @@ function get_t13n (lang) {
     const i = tags.findIndex (el => el === 'x');
 
     if (0 <= i && i < tags.length)
-        return tags.slice (i + 1);
+        return 'x-' + tags[i + 1];
 
     if (tags.findIndex (el => el === 'Deva') >= 0)
-        return ['deva'];
+        return ['x-deva'];
 
-    return ['und']; // undefined
+    return ['x-und']; // undefined
 }
 
 /**
@@ -147,6 +159,7 @@ export default {
     xlate       : xlate,
     xlate_dom   : xlate_dom,
     get_t13n    : get_t13n,
+    need_t13n   : need_t13n,
     scope_css   : scope_css,
     deparam     : deparam,
     get_closest : get_closest,

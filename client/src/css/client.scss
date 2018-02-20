@@ -17,6 +17,7 @@ body {
     /* Margin bottom by footer height */
     margin-top: 60px;
     margin-bottom: 60px;
+    overflow-y: scroll;
 }
 
 .header {
@@ -31,8 +32,8 @@ body {
     }
 }
 
-.main {
-    padding: 1em 0;
+div.left-col, article.center-col, div.right-col {
+    margin: 1em 0;
 }
 
 .footer {

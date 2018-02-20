@@ -1,5 +1,5 @@
 [
-    { "id": "cpd",  "url": "http://api.cpd.uni-koeln.de/v1/" },
-    { "id": "cpd2", "url": "http://api.cpd.uni-koeln.de/v1/" },
-    { "id": "cpd3", "url": "http://api.cpd.uni-koeln.de/v1/" }
+    { "id": "cpd",  "url": "http://api.cpd.uni-koeln.de/" },
+    { "id": "cpd2", "url": "http://api.cpd.uni-koeln.de/" },
+    { "id": "cpd3", "url": "http://api.cpd.uni-koeln.de/" }
 ]

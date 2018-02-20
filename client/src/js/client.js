@@ -29,7 +29,8 @@ const API = { // defaults for apis
     'short_name':    '',
     'main_page_url': '',
     'css':           '',
-    'supported_langs_query': ['iso'],  // sic!
+    'supported_langs_query': [ 'x-iso' ],
+    'current_url':   '',
 }
 
 // Register a global custom directive called `v-focus`
@@ -53,28 +54,33 @@ $ (document).ready (function () {
             apis: [],  // all known APIs
             api: null, // the API of the currently displayed article
 
-            results: [], // results of the current query
-                           // array of (array of headwords)
-
             article_formats: [],     // list of available article formats
             article_endpoint: null,  // the endpoint url that gave us the list
             article: null,           // the preferred (displayed) article format
 
-            headwords: null, // headwords of chosen article, object
+            headwords: { // headwords of chosen article, object
+                dict_id: '',
+                short_name: 'Headwords',
+                current_url: '',
+            },
 
-            context: null, // context of chosen headword, array of headwords
+            context: {  // context of chosen headword
+                dict_id: '',
+                short_name: 'Context',
+                current_url: '',
+            },
 
             // the t13n schemes we support in the order they should appear in the
             // dropdown menu
-            supported_lang: [
-                { 'id' : 'deva',     'desc' : 'Devanagari' },
-                { 'id' : 'iso',      'desc' : 'ISO 15919' },
-                { 'id' : 'iast',     'desc' : 'IAST' },
-                { 'id' : 'slp1',     'desc' : 'SLP1' },
-                { 'id' : 'hk',       'desc' : 'Harvard-Kyoto' },
-                { 'id' : 'velthuis', 'desc' : 'Velthuis' },
-                { 'id' : 'wx',       'desc' : 'WX notation' },
-                { 'id' : 'itrans',   'desc' : 'ITRANS' },
+            supported_langs: [
+                { 'id' : 'x-deva',     'desc' : 'deva', 'longdesc' : 'Devanagari' },
+                { 'id' : 'x-iso',      'desc' : 'iso',  'longdesc' : 'ISO 15919' },
+                { 'id' : 'x-iast',     'desc' : 'iast', 'longdesc' : 'IAST' },
+                { 'id' : 'x-slp1',     'desc' : 'slp1', 'longdesc' : 'SLP1' },
+                { 'id' : 'x-hk',       'desc' : 'hk',   'longdesc' : 'Harvard-Kyoto' },
+                { 'id' : 'x-velthuis', 'desc' : 'vh',   'longdesc' : 'Velthuis' },
+                { 'id' : 'x-wx',       'desc' : 'wx',   'longdesc' : 'WX notation' },
+                { 'id' : 'x-itrans',   'desc' : 'itra', 'longdesc' : 'ITRANS' },
             ],
 
             // model of the user controls
@@ -83,8 +89,8 @@ $ (document).ready (function () {
                 active_apis: ['cpd', 'cpd2'],
                 fulltext: false,
                 query: '',
-                query_lang: 'iso',
-                article_lang: 'iso',
+                query_lang: 'x-iso',
+                article_lang: 'x-iso',
             },
         },
         watch: {
@@ -102,13 +108,13 @@ $ (document).ready (function () {
         },
         computed: {
             user_query_in_deva: function () {
-                return st.xlate (this.user.query, this.user.query_lang, 'deva');
+                return st.xlate (this.user.query, this.user.query_lang, 'x-deva');
             },
             article_t13n: function () {
                 if (this.article) {
-                    let from = st.get_t13n (this.article.lang);
+                    let from = this.article.lang;
                     let to = this.user.article_lang;
-                    if (from[0] === to)
+                    if (!st.need_t13n (from, to))
                         return this.article.text;
                     let $html = $(this.article.text);
                     // FIXME: make this configurable
@@ -146,6 +152,12 @@ $ (document).ready (function () {
             on_user_article_lang : function (event) {
                 this.user.article_lang = $ (event.target).attr ('data-lang'); // attr on button
             },
+            lang_to_desc : function (lang) {
+                let l = this.supported_langs.filter (x => x.id === lang);
+                if (l.length)
+                    return l[0].desc;
+                return 'und'
+            },
             get_api : function (id) {
                 for (let api of this.apis) {
                     if (api.id === id)
@@ -166,51 +178,36 @@ $ (document).ready (function () {
                 this.article = null;
                 this.article_formats = [];
                 this.article_endpoint = '';
-                this.headwords = null;
-                this.context = null;
-            },
-            clear_search : function () {
-                this.results = [];
+                this.headwords.current_url = '';
+                this.context.current_url = '';
             },
             on_search: function (event) {
-                this.clear_search ();
                 for (let id of this.user.active_apis) {
                     let api = this.get_api (id);
                     let q = '';
                     let preferred_lang = '';
-                    if (api.supported_langs_query.includes (this.user.query_lang)) {
+                    let candidates = api.supported_langs_query.filter (
+                        x => !st.need_t13n (x, this.user.query_lang)
+                    );
+                    if (candidates.length > 0) {
                         // the current t13n is supported by the server, use it
-                        q = this.user.query;
                         preferred_lang = this.user.query_lang;
+                        q = this.user.query;
                     } else {
-                        // use the best t13n that is supported by the server
-                        for (let scheme of api.supported_langs_query) {
-                            if (api.supported_langs_query.includes (scheme)) {
-                                q = st.xlate (this.user.query, this.user.query_lang, scheme);
-                                preferred_lang = scheme;
-                                break;
-                            }
-                        }
+                        // use the first t13n that is supported by the server
+                        preferred_lang = api.supported_langs_query[0];
+                        q = st.xlate (this.user.query, this.user.query_lang, preferred_lang);
                     }
                     if (q !== '') {
-                        let params = { 'lang' : preferred_lang };
+                        let params = { 'lang' : st.get_t13n (preferred_lang) };
                         params[this.user.fulltext ? 'fulltext' : 'q'] = q;
-                        let url = api.url + 'headwords/?' + $.param (params);
-                        $.getJSON (url, (json) => {
-                            this.results.push ({
-                                'dict_id' : id,
-                                'name' : api.name,
-                                'short_name' : api.short_name,
-                                'headwords' : json,
-                            });
-                        });
+                        api.current_url = api.url + 'v1/headwords/?' + $.param (params);
                     } else {
                         // FIXME: insert some kind of error message
                     }
                 }
             },
             on_article: function (headword) {
-                this.clear_article ();
                 window.location.hash = '#' + $.param (
                     _.pick (headword, ['articles_url', 'headwords_url', 'dictionary_id'])
                 );
@@ -222,31 +219,18 @@ $ (document).ready (function () {
 
                     this.api = this.get_api (data.dictionary_id);
 
-                    $.get (this.api.url + data.articles_url + '/formats/', (json) => {
+                    $.getJSON (this.api.url + data.articles_url + '/formats/', (json) => {
                         this.article_formats = json;
                         let article = this.get_preferred_doc (json);
                         article.text = this.sanitize_article (article.text);
                         this.article = article;
                         this.article_endpoint = data.articles_url;
                     });
-                    $.getJSON (this.api.url + data.articles_url + '/headwords/', (json) => {
-                        this.headwords = [
-                            {
-                                dict_id: data.dictionary_id,
-                                short_name: 'Headwords',
-                                headwords : json,
-                            }
-                        ];
-                    });
-                    $.getJSON (this.api.url + data.headwords_url + '/context/', (json) => {
-                        this.context = [
-                            {
-                                dict_id: data.dictionary_id,
-                                short_name: 'Context',
-                                headwords : json,
-                            }
-                        ];
-                    });
+                    this.headwords.current_url = this.api.url + data.articles_url  + '/headwords/';
+                    this.context.current_url   = this.api.url + data.headwords_url + '/context/?limit=10';
+                    this.headwords.id = this.api.id;
+                    this.context.id = this.api.id;
+
                 } catch (e) {
                     console.log (e);
                 }
@@ -268,12 +252,13 @@ $ (document).ready (function () {
     // make the attributes known to vue.js early, or they won't be instrumented
     $.getJSON ('api-list.json', (apis) => {
         for (let api of apis) {
-            $.getJSON (api.url, (json) => {
-                Object.assign (api, API); // assign defaults
+            Object.assign (api, API); // assign defaults
+            app.apis.push (api);
+            $.getJSON (api.url + 'v1/', (json) => {
                 for (const key in json) {
                     const value = json[key];
                     if (key === 'supported_langs_query') {
-                        api.supported_langs_query = value.map (x => st.get_t13n (x)[0]);
+                        api.supported_langs_query = value;
                         continue;
                     }
                     if (typeof value !== 'string')
@@ -290,7 +275,6 @@ $ (document).ready (function () {
                     }
                     api[key] = value;
                 }
-                app.apis.push (api);
             });
         }
     });
@@ -308,9 +292,7 @@ $ (document).ready (function () {
 
     $ (document).on ('dragstart', '#article', function (event) {
         let lang = st.get_closest ($(event.target), 'script');
-        if (lang) {
-            lang = 'x-' + lang; // drop handler expects a language tag
-        } else {
+        if (!lang) {
             lang = st.get_closest ($(event.currentTarget), 'lang');
         }
         event.originalEvent.dataTransfer.setData (DNDTypeHeadword, JSON.stringify ({
@@ -327,7 +309,7 @@ $ (document).ready (function () {
         event.preventDefault ();
         let headword = JSON.parse (event.originalEvent.dataTransfer.getData (DNDTypeHeadword));
         app.user.query = st.xlate (
-            headword.normalized_text, st.get_t13n (headword.lang), app.user.query_lang);
+            headword.normalized_text, headword.lang, app.user.query_lang);
         app.on_search (event);
     }).on ('dragover', function (event) {
         event.originalEvent.dataTransfer.dropEffect = 'move';

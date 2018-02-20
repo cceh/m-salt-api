@@ -12,17 +12,18 @@ import re
 import os.path
 
 import flask
-import sqlalchemy
-import flask_sqlalchemy
 from flask import request, current_app
+import sqlalchemy
 from sqlalchemy.sql import text
+import flask_sqlalchemy
 
 from werkzeug.routing import Map, Rule
 
-LANG = 'pi-Latn-x-iso-cpd'
+LANG = 'pi-Latn-x-iso'
+MAX_RESULTS = 100
 
-re_integer_arg = re.compile (r'^[0-9]+$');
-re_normalize_headword = re.compile (r'^[-\[\(√°~]*(?:<sup>\d+</sup>)?(.*?)[-°~\)\]]*$');
+re_integer_arg = re.compile (r'^[0-9]+$')
+re_normalize_headword = re.compile (r'^[-\[\(√°~]*(?:<sup>\d+</sup>)?(.*?)[-°~\)\]]*$')
 
 class MySQLEngine (object):
     """ Database Interface """
@@ -33,7 +34,7 @@ class MySQLEngine (object):
 
         self.url = 'mysql+pymysql://{user}:{password}@{host}:{port}/{database}'.format (**args)
         logger.log (logging.INFO,
-                     'MySQLEngine: Connecting to mysql+pymysql://{user}:password@{host}:{port}/{database}'.format (**args))
+                    'MySQLEngine: Connecting to mysql+pymysql://{user}:password@{host}:{port}/{database}'.format (**args))
         self.engine = sqlalchemy.create_engine (self.url + '?charset=utf8mb4&sql_mode=ANSI',
                                                 pool_recycle = 300)
 
@@ -72,30 +73,39 @@ def clip (i, min_, max_):
     return max (min (int (i), max_), min_)
 
 
-def arg (name, default, re, msg = None):
+def arg (name, default, regex, msg = None):
     arg = request.args.get (name, default)
-    if not re.match (arg):
+    if not regex.match (arg):
         if msg is None:
             msg = 'Invalid %s parameter' % name
         flask.abort (msg)
     return arg
 
 
-def make_headword (row, lang = LANG):
-    """CPD transliteration is almost ISO 15919, but uses uppercase for proper names
-    and â instead of a to signal a syncope a + a. Normalization must conformize
-    these special cases to ISO.
+cpd_iso_trans = str.maketrans ('âêîôû', 'aeiou')
+
+def normalize_iso (text):
+    """Normalize to ISO 15919
+
+    CPD transliteration is almost ISO 15919, but uses uppercase for proper names
+    and 'â' instead of 'a' to signal a syncope 'a' + 'a'.
+
+    We have to replace all 'â's because they definitely do not conform to ISO.
+    We get away with serving uppercase letters in proper names because it is an
+    easy fix on the client's side.
 
     """
-    text = row[1]
-    text = text.replace ('â', 'a')
-    normalized = text
+    return text.translate (cpd_iso_trans)
+
+
+def make_headword (row, lang = LANG):
+    normalized = text = normalize_iso (row[1])
     m = re_normalize_headword.match (normalized)
     if m:
         normalized = m.group (1).lower ()
     return {
-        'articles_url' : 'articles/%d' % row[2],
-        'headwords_url' : 'headwords/%d' % row[0],
+        'articles_url' : 'v1/articles/%d' % row[2],
+        'headwords_url' : 'v1/headwords/%d' % row[0],
         'lang' : lang,
         'normalized_text' : normalized,
         'text' : text,
@@ -108,8 +118,11 @@ def make_json_response (obj):
     return resp
 
 
-def make_headwords_response (res):
-    return make_json_response ([ make_headword (row) for row in res ]);
+def make_headwords_response (res, limit, lang = LANG):
+    return make_json_response ({
+        'limit' : limit,
+        'data' : [ make_headword (row, lang) for row in res ]
+    })
 
 
 # need this before first @app.endpoint declaration
@@ -141,7 +154,7 @@ def headword (_id):
         WHERE id = :id
         """, { 'id' : _id })
 
-        return make_json_response (make_headword (res.fetchone ()));
+        return make_json_response (make_headword (res.fetchone ()))
 
 
 @app.endpoint ('headwords')
@@ -155,7 +168,7 @@ def headwords ():
     q        = request.args.get ('q')
     fulltext = request.args.get ('fulltext')
     offset   = int (arg ('offset', '0', re_integer_arg))
-    limit    = clip (arg ('limit', '100', re_integer_arg), 1, 100)
+    limit    = clip (arg ('limit', str (MAX_RESULTS), re_integer_arg), 1, MAX_RESULTS)
     where    = ''
 
     if (not q) and (not fulltext):
@@ -169,7 +182,7 @@ def headwords ():
             OFFSET :offset
             """, { 'offset' : offset, 'limit' : limit })
 
-        return make_headwords_response (res)
+        return make_headwords_response (res, limit)
 
     if q:
         q = q.replace ('-', '')
@@ -190,7 +203,7 @@ def headwords ():
             OFFSET :offset
             """, { 'q' : q, 'offset' : offset, 'limit' : limit })
 
-        return make_headwords_response (res)
+        return make_headwords_response (res, limit)
 
     with current_app.config.dba.engine.begin () as conn:
         res = execute (conn, r"""
@@ -208,14 +221,14 @@ def headwords ():
         """.format (where = where), { 'q' : q, 'fulltext' : fulltext,
                                       'offset' : offset, 'limit' : limit })
 
-        return make_headwords_response (res)
+        return make_headwords_response (res, limit)
 
 
 @app.endpoint ('context')
 def context (_id):
     """ Retrieve a list of headwords around a given headword. """
 
-    limit = clip (arg ('limit', '10', re_integer_arg), 1, 100)
+    limit = clip (arg ('limit', str (MAX_RESULTS), re_integer_arg), 1, MAX_RESULTS)
 
     with current_app.config.dba.engine.begin () as conn:
         res = execute (conn, """
@@ -248,7 +261,7 @@ def context (_id):
         for row in res2:
             res.append (row[:3])
 
-        return make_headwords_response (res)
+        return make_headwords_response (res, limit)
 
 
 @app.endpoint ('article')
@@ -256,7 +269,7 @@ def article (_id):
     """ Endpoint.  Retrieve an article. """
 
     return make_json_response ({
-        'article_url' : '/article/' + str (_id),
+        'articles_url' : 'v1/articles/' + str (_id),
     })
 
 
@@ -275,7 +288,7 @@ def article_formats (_id):
                 'mimetype' : 'text/x-html-literal',
                 'lang' : LANG,
                 'embeddable' : True,
-                'text' : '<div>%s</div>' % res.fetchone ()[0],
+                'text' : normalize_iso ('<div>%s</div>' % res.fetchone ()[0]),
             },
             {
                 'mimetype' : 'text/html',
@@ -290,15 +303,20 @@ def article_formats (_id):
 def article_headwords (_id):
     """ Endpoint.  Retrieve the list of headwords for an article. """
 
+    offset = int (arg ('offset', '0', re_integer_arg))
+    limit = clip (arg ('limit', str (MAX_RESULTS), re_integer_arg), 1, MAX_RESULTS)
+
     with current_app.config.dba.engine.begin () as conn:
         res = execute (conn, r"""
         SELECT id, webkeyword, no
         FROM keyword
         WHERE no = :id
         ORDER BY sortkeyword
-        """, { 'id' : _id })
+        LIMIT :limit
+        OFFSET :offset
+        """, { 'id' : _id, 'offset' : offset, 'limit' : limit })
 
-        return make_headwords_response (res)
+        return make_headwords_response (res, limit)
 
 
 #
@@ -315,7 +333,13 @@ parser.add_argument ('-c', '--config-file', dest='config_file', action='append',
 
 args = parser.parse_args ()
 args.start_time = datetime.datetime.now ()
-LOG_LEVELS = { 0: logging.CRITICAL, 1: logging.ERROR, 2: logging.WARN, 3: logging.INFO, 4: logging.DEBUG }
+LOG_LEVELS = {
+    0: logging.CRITICAL,
+    1: logging.ERROR,
+    2: logging.WARN,
+    3: logging.INFO,
+    4: logging.DEBUG
+}
 args.log_level = LOG_LEVELS.get (args.verbose + 1, logging.CRITICAL)
 
 logging.basicConfig (format = '%(asctime)s - %(levelname)s - %(message)s')

@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
+    <link rel="icon" type="image/png" href="images/cceh-logo.png" />
     <script src="bundle.js"></script>
     <style type="text/css" id="api-style"></style>
   </head>
@@ -23,14 +23,14 @@
 	<div id="app" class="container bs-docs-container">
 	  <div class="row">
 
-	    <div class="col-md-3">
+	    <div class="col-md-3 left-col">
               <div class="dictionary-list">
 		<div>Available Dictionaries:</div>
 		<ul>
 		  <li v-for="api in apis" :data-id="api.id">
 		    <label>
 		      <input v-model="user.active_apis" type="checkbox" :value="api.id"/>
-		      ({{ api.short_name }}) {{ api.name }}
+		      {{ api.name }}
 		    </label>
 		  </li>
 		</ul>
@@ -43,11 +43,11 @@
 		    <div class="input-group-prepend">
 		      <button class="btn btn-outline-primary dropdown-toggle" type="button"
 			      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-			{{ user.query_lang }}
+			{{ lang_to_desc (user.query_lang) }}
 		      </button>
 		      <div class="dropdown-menu">
-			<button v-for="tn in supported_lang" v-on:click.prevent="on_user_query_lang"
-				class="dropdown-item" type="button" :data-lang="tn.id">{{ tn.desc }}</button>
+			<button v-for="tn in supported_langs" v-on:click.prevent="on_user_query_lang"
+				class="dropdown-item" type="button" :data-lang="tn.id">{{ tn.longdesc }}</button>
 		      </div>
 		    </div>
 		    <input v-model="user.query" v-focus=""
@@ -69,13 +69,15 @@
 		</div>
 	      </form>
 
-	      <div v-if="results.length">
+	      <div class="results">
 		<div>Your search gave:</div>
-		<div is="salt-headwords" class="results"
-		     :dictionaries="results"
+
+		<div v-for="data in apis" is="salt-headwords"
 		     v-on:on_article="on_article"
 		     :api="api"
+		     :data="data"
 		     :user="user"
+  		     :per_page="10"
 		     :article_endpoint="article_endpoint">
 		</div>
 	      </div>
@@ -84,16 +86,16 @@
 
 	    <!-- article -->
 
-	    <article class="article col-md-6">
+	    <article class="article col-md-6 center-col">
 	      <div v-if="api &amp;&amp; article">
 		<div class="dropdown article-lang-dropdown">
 		  <button class="btn btn-outline-primary dropdown-toggle" type="button"
 			  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-		    {{ user.article_lang }}
+		    {{ lang_to_desc (user.article_lang) }}
 		  </button>
 		  <div class="dropdown-menu">
-		    <button v-for="tn in supported_lang" v-on:click.prevent="on_user_article_lang"
-			    class="dropdown-item" type="button" :data-lang="tn.id">{{ tn.desc }}</button>
+		    <button v-for="tn in supported_langs" v-on:click.prevent="on_user_article_lang"
+			    class="dropdown-item" type="button" :data-lang="tn.id">{{ tn.longdesc }}</button>
 		  </div>
 		</div>
 		<h2><a :href="api.main_page_url">{{api.name}}</a></h2>
@@ -105,24 +107,26 @@
 	      </div>
 	    </article>
 
-	    <div class="col-md-3">
+	    <div class="col-md-3 right-col">
 	      <!-- headwords -->
 
 	      <div is="salt-headwords" v-if="headwords" class="headwords"
-		   :dictionaries="headwords"
 		   v-on:on_article="on_article"
 		   :api="api"
+		   :data="headwords"
 		   :user="user"
+		   :per_page="100"
 		   :article_endpoint="article_endpoint">
 	      </div>
 
 	      <!-- context -->
 
 	      <div is="salt-headwords" v-if="context" class="context"
-		   :dictionaries="context"
 		   v-on:on_article="on_article"
 		   :api="api"
+		   :data="context"
 		   :user="user"
+		   :per_page="100"
 		   :article_endpoint="article_endpoint">
 	      </div>
 	    </div>

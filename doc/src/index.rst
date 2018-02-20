@@ -7,9 +7,7 @@
 An API for consulting dictionaries in Sanskrit and Pāli and maybe other ancient
 South Asian languages.
 
-.. warning::
-
-   This API is not yet finalized!
+.. warning:: This API is not yet finalized!
 
 
 Concepts
@@ -41,19 +39,13 @@ more than one article but more than one headword may point to one article.
 
 The API is designed to allow a client to search multiple dictionaries at once.
 
-The API can be mounted on an arbitrary root URL. Examples::
+The API can be mounted on an arbitrary base URL. Examples::
 
-  https://api.cpd.uni-koeln.de/
   https://api.cpd.uni-koeln.de/v1/
+  https://cpd.uni-koeln.de/api/v1/
   https://www.uni-koeln.de/cpd/api/v1/
-  https://cpd.uni-koeln.de/api/1/
 
-It is strongly recommended to have an API version indicator in the mount point
-to allow easier upgrading by running two versions concurrently.
-
-All responses of this API are in JSON format.  All endpoints ending in "/"
-(except the root endpoint) return JSON arrays. All other endpoints return a JSON
-object.
+All responses of this API are in JSON format.
 
 
 .. _t13n:
@@ -81,26 +73,18 @@ Latn-x-velthuis Velthuis       https://en.wikipedia.org/wiki/Velthuis
 Latn-x-wx       WX notation    https://en.wikipedia.org/wiki/WX_notation
 =============== ============== ===========================================
 
-Variants of these transliterations may be indicatedby appending another subtag:
-eg. Latn-x-iso-cpd (the ISO 15919 variant used bay the Critical Pāli
-Dictionary).  Clients SHOULD ignore these additional subtags unless they have
-gained knowledge about these tags by ways that lie outside this specification.
-
-The server MUST answer with valid RFC5646 language tags, that is, it should
+The server MUST answer with valid :RFC:`5646` language tags, that is, it should
 prepend a valid language tag.  These are valid tags:
 
- - pi-Latn-x-iso-cpd
  - sa-Latn-x-iso
  - pi-Deva
  - x-slp1
 
 When declaring transliterations in HTML use the lang attribute. Examples:
 
- - <span land="pi-Latn-x-iso-cpd">...</span>
- - <span land="sa-Latn-x-iso">...</span>
+ - <span lang="sa-Latn-x-iso">...</span>
  - <span lang="pi-Deva">...</span>
  - <span lang="x-slp1">...</span>
-
 
 See also:
 
@@ -108,12 +92,12 @@ See also:
  - https://tools.ietf.org/html/rfc5646#section-2.2.7
  - https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
 
-..
-   TODO: or should we use an alternative method using the *t* extension::
+.. TODO: or should we use an alternative method using the *t* extension?
+   Downside: the transliterations we use are not registered with IANA.
 
-   sa-Latn-t-sa-deva-m0-slp1
+    - sa-Latn-t-sa-deva-m0-slp1
 
-    - https://tools.ietf.org/html/rfc6497
+    - :RFC:`6497`
     - http://cldr.unicode.org/index/cldr-spec/transliteration-guidelines#Indic
 
 
@@ -125,7 +109,7 @@ Embedded HTML
 The client using the API may wish to display the HTML of the article embedded in
 a page of the client's choice.  To make this seemless the HTML must be sanitized
 by the client and the CSS needed for correct display of your HTML should be
-provided by the :http:get:`/` endpoint.
+provided by the :http:get:`/v1/` endpoint.
 
 Sanitized HTML in articles may contain only the tags: div, p, span, i, b, em,
 strong, sup, sub, br, all with an optional class attribute.
@@ -138,7 +122,7 @@ different dictionaries in a visually pleasing way.
 Endpoints
 =========
 
-.. http:get:: /
+.. http:get:: /v1/
 
    Get information about the dictionary.
 
@@ -146,7 +130,7 @@ Endpoints
 
    .. sourcecode:: http
 
-      GET / HTTP/1.1
+      GET /v1/ HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -161,7 +145,9 @@ Endpoints
         "main_page_url": "http://cpd.uni-koeln.de/",
         "name": "A Critical P\u0101li Dictionary",
         "short_name": "CPD",
-        "supported_langs_query": [ "pi-Latn-x-iso" ]
+        "supported_langs_query": [
+          "pi-Latn-x-iso"
+        ]
       }
 
    :resheader Content-Type: application/json
@@ -187,7 +173,7 @@ Endpoints
    scheme if the server accepts it.
 
 
-.. http:get:: /headwords/
+.. http:get:: /v1/headwords/
 
    Get a list of headwords.
 
@@ -195,7 +181,7 @@ Endpoints
 
    .. sourcecode:: http
 
-      GET /headwords/?q=ahimsa*&lang=x-slp1&limit=3 HTTP/1.1
+      GET /v1/headwords/?q=ahimsa*&lang=x-slp1&limit=3 HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -205,29 +191,32 @@ Endpoints
       HTTP/1.1 200 OK
       Content-Type: application/json
 
-      [
-        {
-          "articles_url": "articles/11411",
-          "normalized_text": "a-hi\u1e41sa",
-          "lang": "pi-Latn-x-iso",
-          "text": "[a-hi\u1e41sa",
-          "headwords_url": "headwords/43681"
-        },
-        {
-          "articles_url": "articles/11412",
-          "normalized_text": "a-hi\u1e41sa",
-          "lang": "pi-Latn-x-iso",
-          "text": "a-hi\u1e41sa",
-          "headwords_url": "headwords/43685"
-        },
-        {
-          "articles_url": "articles/11413",
-          "normalized_text": "a-hi\u1e41saka",
-          "lang": "pi-Latn-x-iso",
-          "text": "a-hi\u1e41saka",
-          "headwords_url": "headwords/43687"
-        }
-      ]
+      {
+        "data": [
+          {
+            "articles_url": "v1/articles/11411",
+            "headwords_url": "v1/headwords/43681",
+            "lang": "pi-Latn-x-iso",
+            "normalized_text": "a-hi\u1e41sa",
+            "text": "[a-hi\u1e41sa"
+          },
+          {
+            "articles_url": "v1/articles/11412",
+            "headwords_url": "v1/headwords/43685",
+            "lang": "pi-Latn-x-iso",
+            "normalized_text": "a-hi\u1e41sa",
+            "text": "a-hi\u1e41sa"
+          },
+          {
+            "articles_url": "v1/articles/11413",
+            "headwords_url": "v1/headwords/43687",
+            "lang": "pi-Latn-x-iso",
+            "normalized_text": "a-hi\u1e41saka",
+            "text": "a-hi\u1e41saka"
+          }
+        ],
+        "limit": 3
+      }
 
    :query q: The query. Restrict the result to headwords matching this query.
    :query fulltext: Fulltext query. Restrict the result to headwords of articles
@@ -240,9 +229,18 @@ Endpoints
    :statuscode 200: no error
    :statuscode 400: Bad Request.  If the server does not support fulltext
                     searches.
-
-
-   For the response object parameters see: :http:get:`/headwords/(id)`.
+   :resjsonobj string limit: The limit applied by the server to the number of
+                             headwords returned.  This MUST NOT be higher but
+                             MAY be lower than the limit requested in the query.
+                             The limit actually used by the server MUST be
+                             indicated in the response.
+   :resjsonobj url articles_url: the article endpoint URL of the article relative to the API root.
+   :resjsonobj url headwords_url: the headword endpoint URL relative to the API root.
+   :resjsonobj string normalized_text: the headword as it would be sent in the
+                                       `q` parameter.
+   :resjsonobj string lang: The :ref:`transliteration <t13n>` applied to the
+                            headword. Default "x-iso".
+   :resjsonobj string text: the headword. :ref:`Some HTML <embed>` allowed.
 
    If both `q` and `fulltext` are specified the filters are both applied.  If
    neither `q` nor `fulltext` are specified, this call retrieves a list of all
@@ -259,10 +257,10 @@ Endpoints
    A server not supporting fulltext searches MUST return a http status 400 bad
    request.
 
-   See also: the :http:get:`/` endpoint.
+   See also: the :http:get:`/v1/` endpoint.
 
 
-.. http:get:: /headwords/(id)
+.. http:get:: /v1/headwords/(id)
 
    Get one headword.
 
@@ -270,7 +268,7 @@ Endpoints
 
    .. sourcecode:: http
 
-      GET /headwords/43704 HTTP/1.1
+      GET /v1/headwords/43704 HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -281,27 +279,22 @@ Endpoints
       Content-Type: application/json
 
       {
-        "articles_url": "articles/11421",
-        "normalized_text": "a-hi\u1e41s\u0101",
+        "articles_url": "v1/articles/11421",
+        "headwords_url": "v1/headwords/43704",
         "lang": "pi-Latn-x-iso",
-        "text": "a-hi\u1e41s\u0101",
-        "headwords_url": "headwords/43704"
+        "normalized_text": "a-hi\u1e41s\u0101",
+        "text": "a-hi\u1e41s\u0101"
       }
 
-   :param id: The headword id. See: :http:get:`/articles/(id)`.
+   :param id: The headword id. See: :http:get:`/v1/articles/(id)`.
    :resheader Content-Type: application/json
    :statuscode 200: no error
    :statuscode 404: headword not found
-   :resjsonobj url articles_url: the article endpoint URL of the article relative to the API root.
-   :resjsonobj url headwords_url: the headword endpoint URL relative to the API root.
-   :resjsonobj string normalized_text: the headword as it would be sent in the
-                                       `q` parameter.
-   :resjsonobj string lang: The :ref:`transliteration <t13n>` applied to the
-                            headword. Default "x-iso".
-   :resjsonobj string text: the headword. :ref:`Some HTML <embed>` allowed.
+
+   For the response object parameters see: :http:get:`/v1/headwords/`.
 
 
-.. http:get:: /headwords/(id)/context/
+.. http:get:: /v1/headwords/(id)/context/
 
    Get some headwords that alphabetically surround the article's headword.
 
@@ -309,61 +302,7 @@ Endpoints
 
    .. sourcecode:: http
 
-      GET /headwords/43704/context/?limit=1 HTTP/1.1
-      Host: api.cpd.uni-koeln.de
-
-   **Example response**:
-
-   .. sourcecode:: http
-
-      HTTP/1.1 200 OK
-      Content-Type: application/json
-
-      [
-        {
-          "articles_url": "articles/11420",
-          "normalized_text": "a-hi\u1e41sayat",
-          "lang": "pi-Latn-x-iso",
-          "text": "a-hi\u1e41sayat",
-          "headwords_url": "headwords/43700"
-        },
-        {
-          "articles_url": "articles/11421",
-          "normalized_text": "a-hi\u1e41s\u0101",
-          "lang": "pi-Latn-x-iso",
-          "text": "a-hi\u1e41s\u0101",
-          "headwords_url": "headwords/43704"
-        },
-        {
-          "articles_url": "articles/11437",
-          "normalized_text": "a-hita",
-          "lang": "pi-Latn-x-iso",
-          "text": "a-hita",
-          "headwords_url": "headwords/43733"
-        }
-      ]
-
-   :param id: The article id. See: :http:get:`/articles/(id)`.
-   :query limit: limit number of returned headwords. The call returns limit
-                 headwords before the headword, the headword, and limit
-                 headwords after the headword, totalling (limit * 2 + 1)
-                 headwords.  Default 10.
-   :resheader Content-Type: application/json
-   :statuscode 200: no error
-   :statuscode 404: article not found
-
-   For the response object parameters see: :http:get:`/headwords/(id)`
-
-
-.. http:get:: /articles/(id)
-
-   Get the article.
-
-   **Example request**:
-
-   .. sourcecode:: http
-
-      GET /articles/42 HTTP/1.1
+      GET /v1/headwords/43704/context/?limit=1 HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -374,7 +313,64 @@ Endpoints
       Content-Type: application/json
 
       {
-        "articles_url" : "/article/42",
+        "data": [
+          {
+            "articles_url": "v1/articles/11420",
+            "headwords_url": "v1/headwords/43700",
+            "lang": "pi-Latn-x-iso",
+            "normalized_text": "a-hi\u1e41sayat",
+            "text": "a-hi\u1e41sayat"
+          },
+          {
+            "articles_url": "v1/articles/11421",
+            "headwords_url": "v1/headwords/43704",
+            "lang": "pi-Latn-x-iso",
+            "normalized_text": "a-hi\u1e41s\u0101",
+            "text": "a-hi\u1e41s\u0101"
+          },
+          {
+            "articles_url": "v1/articles/11437",
+            "headwords_url": "v1/headwords/43733",
+            "lang": "pi-Latn-x-iso",
+            "normalized_text": "a-hita",
+            "text": "a-hita"
+          }
+        ],
+        "limit": 1
+      }
+
+   :param id: The article id. See: :http:get:`/v1/articles/(id)`.
+   :query limit: limit number of returned headwords. The call returns limit
+                 headwords before the headword, the headword, and limit
+                 headwords after the headword, totalling (limit * 2 + 1)
+                 headwords.  Default 100.
+   :resheader Content-Type: application/json
+   :statuscode 200: no error
+   :statuscode 404: article not found
+
+   For the response object parameters see: :http:get:`/v1/headwords/`
+
+
+.. http:get:: /v1/articles/(id)
+
+   Get the article.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /v1/articles/42 HTTP/1.1
+      Host: api.cpd.uni-koeln.de
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Content-Type: application/json
+
+      {
+        "articles_url" : "/v1/articles/42",
       }
 
    :param id: The article id. Can be any string that is convenient to the server
@@ -385,10 +381,10 @@ Endpoints
    :resjsonobj url articles_url: The endpoint URL of the article.
 
    A quite pointless endpoint.  Included for aesthetical reasons (symmetry with
-   :http:get:`/headwords/(id)`)
+   :http:get:`/v1/headwords/(id)`)
 
 
-.. http:get:: /articles/(id)/formats/
+.. http:get:: /v1/articles/(id)/formats/
 
    Get a list of an article's available formats.
 
@@ -396,7 +392,7 @@ Endpoints
 
    .. sourcecode:: http
 
-      GET /articles/42/formats/ HTTP/1.1
+      GET /v1/articles/42/formats/ HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -408,24 +404,26 @@ Endpoints
 
       [
         {
-          "mimetype" : "text/x-html-literal",
           "embeddable": true,
-          "lang" : "pi-Latn-x-iso",
-          "text" : "<div>...</div>"
+          "lang": "pi-Latn-x-iso",
+          "mimetype": "text/x-html-literal",
+          "text": "<div>...</div>"
         },
         {
-          "mimetype" : "text/html",
-          "embeddable": true,
           "canonical": true,
-          "lang" : "pi-Latn-x-iso",
-          "root" : "div.article",
-          "urls"  : ["https://..."]
-        },
+          "embeddable": true,
+          "lang": "pi-Latn-x-iso",
+          "mimetype": "text/html",
+          "root" : "article",
+          "urls": [
+            "http://cpd.uni-koeln.de/search?article_id=42"
+          ]
+        }
         {
-          "mimetype" : "text/html",
           "embeddable": true,
           "lang" : "pi-Deva",
-          "root" : "div.article",
+          "mimetype" : "text/html",
+          "root" : "article",
           "urls" : ["https://..."]
         },
         {
@@ -433,9 +431,9 @@ Endpoints
           "urls" : ["https://..."]
         },
         {
-          "mimetype" : "image/jpeg",
           "embeddable": true,
-          "lang" : "deva",
+          "lang" : "pi-Deva",
+          "mimetype" : "image/jpeg",
           "urls" : ["https://img1", "https://img2", "..."]
         }
       ]
@@ -502,7 +500,7 @@ Endpoints
    "article".
 
 
-.. http:get:: /articles/(id)/headwords/
+.. http:get:: /v1/articles/(id)/headwords/
 
    Get a list of an article's headwords.
 
@@ -510,7 +508,7 @@ Endpoints
 
    .. sourcecode:: http
 
-      GET /articles/11412/headwords/ HTTP/1.1
+      GET /v1/articles/11412/headwords/ HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -520,29 +518,34 @@ Endpoints
       HTTP/1.1 200 OK
       Content-Type: application/json
 
-      [
-        {
-          "articles_url": "articles/11412",
-          "normalized_text": "a-hi\u1e41sa",
-          "lang": "pi-Latn-x-iso",
-          "text": "a-hi\u1e41sa",
-          "headwords_url": "headwords/43685"
-        },
-        {
-          "articles_url": "articles/11412",
-          "normalized_text": "a-hi\u1e41sat",
-          "lang": "pi-Latn-x-iso",
-          "text": "a-hi\u1e41sat",
-          "headwords_url": "headwords/43683"
-        }
-      ]
+      {
+        "data": [
+          {
+            "articles_url": "v1/articles/11412",
+            "headwords_url": "v1/headwords/43685",
+            "lang": "pi-Latn-x-iso",
+            "normalized_text": "a-hi\u1e41sa",
+            "text": "a-hi\u1e41sa"
+          },
+          {
+            "articles_url": "v1/articles/11412",
+            "headwords_url": "v1/headwords/43683",
+            "lang": "pi-Latn-x-iso",
+            "normalized_text": "a-hi\u1e41sat",
+            "text": "a-hi\u1e41sat"
+          }
+        ],
+        "limit": 100
+      }
 
-   :param id: The article id. See: :http:get:`/articles/(id)`.
+   :param id: The article id. See: :http:get:`/v1/articles/(id)`.
+   :query limit: limit number. Default 100.
+   :query offset: offset number. Default 0.
    :resheader Content-Type: application/json
    :statuscode 200: no error
    :statuscode 404: article not found
 
-   For the response object parameters see: :http:get:`/headwords/(id)`
+   For the response object parameters see: :http:get:`/v1/headwords/`
 
 
 Indices and tables
