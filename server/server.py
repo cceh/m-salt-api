@@ -8,8 +8,8 @@ import configparser
 import datetime
 import json
 import logging
-import re
 import os.path
+import re
 
 import flask
 from flask import request, current_app
@@ -99,6 +99,7 @@ def normalize_iso (text):
 
 
 def make_headword (row, lang = LANG):
+    """ row is: headword_id, text, article_id """
     normalized = text = normalize_iso (row[1])
     m = re_normalize_headword.match (normalized)
     if m:
@@ -118,7 +119,7 @@ def make_json_response (obj):
     return resp
 
 
-def make_headwords_response (res, limit, lang = LANG):
+def make_headwords_response (res, limit = MAX_RESULTS, lang = LANG):
     return make_json_response ({
         'limit' : limit,
         'data' : [ make_headword (row, lang) for row in res ]
@@ -143,20 +144,6 @@ def info ():
     return make_json_response (info)
 
 
-@app.endpoint ('headword')
-def headword (_id):
-    """ Retrieve a headword. """
-
-    with current_app.config.dba.engine.begin () as conn:
-        res = execute (conn, """
-        SELECT id, webkeyword, no
-        FROM keyword
-        WHERE id = :id
-        """, { 'id' : _id })
-
-        return make_json_response (make_headword (res.fetchone ()))
-
-
 @app.endpoint ('headwords')
 def headwords ():
     """ Endpoint.  Retrieve a list of headword IDs.
@@ -177,7 +164,7 @@ def headwords ():
             res = execute (conn, r"""
             SELECT id, webkeyword, no
             FROM keyword
-            ORDER BY sortkeyword
+            ORDER BY sortkeyword, n, no
             LIMIT :limit
             OFFSET :offset
             """, { 'offset' : offset, 'limit' : limit })
@@ -198,7 +185,7 @@ def headwords ():
             SELECT id, webkeyword, no
             FROM keyword
             WHERE keyword LIKE :q
-            ORDER BY sortkeyword
+            ORDER BY sortkeyword, n, no
             LIMIT :limit
             OFFSET :offset
             """, { 'q' : q, 'offset' : offset, 'limit' : limit })
@@ -224,8 +211,22 @@ def headwords ():
         return make_headwords_response (res, limit)
 
 
-@app.endpoint ('context')
-def context (_id):
+@app.endpoint ('headwords_id')
+def headwords_id (_id):
+    """ Retrieve a headword. """
+
+    with current_app.config.dba.engine.begin () as conn:
+        res = execute (conn, """
+        SELECT id, webkeyword, no
+        FROM keyword
+        WHERE id = :id
+        """, { 'id' : _id })
+
+        return make_headwords_response (res)
+
+
+@app.endpoint ('headwords_id_context')
+def headwords_id_context (_id):
     """ Retrieve a list of headwords around a given headword. """
 
     limit = clip (arg ('limit', str (MAX_RESULTS), re_integer_arg), 1, MAX_RESULTS)
@@ -242,7 +243,7 @@ def context (_id):
         SELECT id, webkeyword, no
         FROM keyword
         WHERE sortkeyword < :sortkeyword
-        ORDER BY sortkeyword DESC
+        ORDER BY sortkeyword DESC, n DESC, no DESC
         LIMIT :limit
         """, { 'sortkeyword' : sortkeyword, 'limit' : limit })
 
@@ -250,7 +251,7 @@ def context (_id):
         SELECT id, webkeyword, no
         FROM keyword
         WHERE sortkeyword >= :sortkeyword
-        ORDER BY sortkeyword
+        ORDER BY sortkeyword, n, no
         LIMIT :limit
         """, { 'sortkeyword' : sortkeyword, 'limit' : limit + 1 })
 
@@ -264,17 +265,55 @@ def context (_id):
         return make_headwords_response (res, limit)
 
 
-@app.endpoint ('article')
-def article (_id):
-    """ Endpoint.  Retrieve an article. """
+def make_article (row, lang = LANG):
+    """ row is: article_id """
+    return {
+        'articles_url' : 'v1/articles/%d' % row[0],
+    }
 
+
+def make_articles_response (res, limit = MAX_RESULTS, lang = LANG):
     return make_json_response ({
-        'articles_url' : 'v1/articles/' + str (_id),
+        'limit' : limit,
+        'data' : [ make_article (row, lang) for row in res ]
     })
 
 
-@app.endpoint ('articles_formats')
-def article_formats (_id):
+@app.endpoint ('articles')
+def articles ():
+    """ Endpoint.  Retrieve a list of articles. """
+
+    offset = int (arg ('offset', '0', re_integer_arg))
+    limit = clip (arg ('limit', str (MAX_RESULTS), re_integer_arg), 1, MAX_RESULTS)
+
+    with current_app.config.dba.engine.begin () as conn:
+        res = execute (conn, r"""
+        SELECT no
+        FROM article
+        ORDER BY no
+        LIMIT :limit
+        OFFSET :offset
+        """, { 'offset' : offset, 'limit' : limit })
+
+        return make_articles_response (res, limit)
+
+
+@app.endpoint ('articles_id')
+def articles_id (_id = None):
+    """ Endpoint.  Retrieve an article. """
+
+    with current_app.config.dba.engine.begin () as conn:
+        res = execute (conn, r"""
+        SELECT no
+        FROM article
+        WHERE no = :id
+        """, { 'id' : _id })
+
+        return make_articles_response (res)
+
+
+@app.endpoint ('articles_id_formats')
+def articles_id_formats (_id):
     """ Endpoint.  Retrieve an article's available formats. """
 
     canonical_url = app.config['APPLICATION_MAIN_URL'] + 'search?article_id='
@@ -299,8 +338,8 @@ def article_formats (_id):
         ])
 
 
-@app.endpoint ('articles_headwords')
-def article_headwords (_id):
+@app.endpoint ('articles_id_headwords')
+def articles_id_headwords (_id):
     """ Endpoint.  Retrieve the list of headwords for an article. """
 
     offset = int (arg ('offset', '0', re_integer_arg))
@@ -357,22 +396,23 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['server_start_time'] = str (int (args.start_time.timestamp ()))
 
 app.url_map = Map ([
-    Rule ('/v1/',                              endpoint = 'info'),
-    Rule ('/v1/headwords/',                    endpoint = 'headwords'),
-    Rule ('/v1/headwords/<int:_id>',           endpoint = 'headword'),
-    Rule ('/v1/headwords/<int:_id>/context/',  endpoint = 'context'),
-    Rule ('/v1/articles/<int:_id>',            endpoint = 'article'),
-    Rule ('/v1/articles/<int:_id>/formats/',   endpoint = 'articles_formats'),
-    Rule ('/v1/articles/<int:_id>/headwords/', endpoint = 'articles_headwords'),
+    Rule ('/v1',                              endpoint = 'info'),
+    Rule ('/v1/headwords',                    endpoint = 'headwords'),
+    Rule ('/v1/headwords/<int:_id>',          endpoint = 'headwords_id'),
+    Rule ('/v1/headwords/<int:_id>/context',  endpoint = 'headwords_id_context'),
+    Rule ('/v1/articles',                     endpoint = 'articles'),
+    Rule ('/v1/articles/<int:_id>',           endpoint = 'articles_id'),
+    Rule ('/v1/articles/<int:_id>/formats',   endpoint = 'articles_id_formats'),
+    Rule ('/v1/articles/<int:_id>/headwords', endpoint = 'articles_id_headwords'),
 ])
 
 dba = flask_sqlalchemy.SQLAlchemy ()
 dba.init_app (app)
 
 port = app.config.get ('APPLICATION_PORT', 5000)
-path = app.config.get ('APPLICATION_ROOT', '/')
+path = app.config.get ('APPLICATION_ROOT', '')
 
-logger.log (logging.INFO, "'{name}' is now served from port {port}{path}".format (
+logger.log (logging.INFO, "'{name}' is now served from localhost:{port}{path}/v1".format (
     name = app.config['APPLICATION_NAME'],
     port = port,
     path = path))
@@ -380,4 +420,12 @@ logger.log (logging.INFO, "'{name}' is now served from port {port}{path}".format
 
 if __name__ == "__main__":
     from werkzeug.serving import run_simple
-    run_simple ('localhost', port, app)
+
+    if path == '':
+        run_simple ('localhost', port, app)
+    else:
+        from werkzeug.wsgi import DispatcherMiddleware
+        application = DispatcherMiddleware (flask.Flask ('dummy_app_for_root'), {
+            app.config['APPLICATION_ROOT'] : app,
+        })
+        run_simple ('localhost', port, application)

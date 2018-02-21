@@ -180,17 +180,11 @@ one or more headwords.</p>
 </div>
 <p>The article may be available in many different formats, eg. as fully marked up
 TEI, or as a series of scanned images.</p>
-<p>The article may also be available in Devanagari or in a latin transliteration,
+<p>The article may also be available in Devanagari or in a Latin transliteration,
 eg. SLP1 or Harvard-Kyoto.</p>
 <p>The relation between articles and headwords is 1:N.  A headword cannot point to
 more than one article but more than one headword may point to one article.</p>
 <p>The API is designed to allow a client to search multiple dictionaries at once.</p>
-<p>The API can be mounted on an arbitrary base URL. Examples:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">api</span><span class="o">.</span><span class="n">cpd</span><span class="o">.</span><span class="n">uni</span><span class="o">-</span><span class="n">koeln</span><span class="o">.</span><span class="n">de</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span>
-<span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">cpd</span><span class="o">.</span><span class="n">uni</span><span class="o">-</span><span class="n">koeln</span><span class="o">.</span><span class="n">de</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span>
-<span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">uni</span><span class="o">-</span><span class="n">koeln</span><span class="o">.</span><span class="n">de</span><span class="o">/</span><span class="n">cpd</span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span>
-</pre></div>
-</div>
 <p>All responses of this API are in JSON format.</p>
 <div class="section" id="transliterations">
 <span id="t13n"></span><h3>Transliterations<a class="headerlink" href="#transliterations" title="Permalink to this headline">¶</a></h3>
@@ -274,9 +268,9 @@ prepend a valid language tag.  These are valid tags:</p>
 <div class="section" id="embedded-html">
 <span id="embed"></span><h3>Embedded HTML<a class="headerlink" href="#embedded-html" title="Permalink to this headline">¶</a></h3>
 <p>The client using the API may wish to display the HTML of the article embedded in
-a page of the client’s choice.  To make this seemless the HTML must be sanitized
+a page of the client’s choice.  To make this seamless the HTML must be sanitized
 by the client and the CSS needed for correct display of your HTML should be
-provided by the <a class="reference internal" href="#get--v1-" title="GET /v1/"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1/</span></code></a> endpoint.</p>
+provided by the <a class="reference internal" href="#get--v1" title="GET /v1"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1</span></code></a> endpoint.</p>
 <p>Sanitized HTML in articles may contain only the tags: div, p, span, i, b, em,
 strong, sup, sub, br, all with an optional class attribute.</p>
 <p>Sanitized HTML in headwords may contain only the tags: i, sup, sub, without
@@ -287,11 +281,11 @@ different dictionaries in a visually pleasing way.</p>
 <div class="section" id="endpoints">
 <h2>Endpoints<a class="headerlink" href="#endpoints" title="Permalink to this headline">¶</a></h2>
 <dl class="get">
-<dt id="get--v1-">
-<code class="descname">GET </code><code class="descname">/v1/</code><a class="headerlink" href="#get--v1-" title="Permalink to this definition">¶</a></dt>
+<dt id="get--v1">
+<code class="descname">GET </code><code class="descname">/v1</code><a class="headerlink" href="#get--v1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get information about the dictionary.</p>
 <p><strong>Example request</strong>:</p>
-<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">api.cpd.uni-koeln.de</span>
 </pre></div>
 </div>
@@ -328,9 +322,9 @@ different dictionaries in a visually pleasing way.</p>
 <tr class="field-odd field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
 <tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
 <li><strong>short_name</strong> (<em>string</em>) – A siglum or short name of the dictionary.
-Max. 10 unicode characters.</li>
+Max. 10 Unicode characters.</li>
 <li><strong>name</strong> (<em>string</em>) – A longer name of the dictionary.
-Max. 80 unicode characters.</li>
+Max. 80 Unicode characters.</li>
 <li><strong>main_page_url</strong> (<em>url</em>) – The URL of the main page of the dictionary.</li>
 <li><strong>css</strong> (<em>string</em>) – Optional.  Any CSS needed to display the HTML version
 of your articles. Use either <cite>css</cite> or <cite>css_url</cite> or
@@ -346,17 +340,17 @@ of preference.</li>
 </tbody>
 </table>
 <p>When sending the query to the server, the client MAY transliterate the user’s
-chosen t13n to one accepted by the server.  The client MUST display an error
-message if unable to do so.  The client SHOULD use the user’s chosen t13n
-scheme if the server accepts it.</p>
+chosen transliteration to one accepted by the server.  The client MUST
+display an error message if unable to do so.  The client SHOULD use the
+user’s chosen transliteration scheme if the server accepts it.</p>
 </dd></dl>
 
 <dl class="get">
-<dt id="get--v1-headwords-">
-<code class="descname">GET </code><code class="descname">/v1/headwords/</code><a class="headerlink" href="#get--v1-headwords-" title="Permalink to this definition">¶</a></dt>
+<dt id="get--v1-headwords">
+<code class="descname">GET </code><code class="descname">/v1/headwords</code><a class="headerlink" href="#get--v1-headwords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of headwords.</p>
 <p><strong>Example request</strong>:</p>
-<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/headwords/?q=ahimsa*&amp;lang=x-slp1&amp;limit=3</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/headwords?q=ahimsa*&amp;lang=x-slp1&amp;limit=3</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">api.cpd.uni-koeln.de</span>
 </pre></div>
 </div>
@@ -399,7 +393,7 @@ scheme if the server accepts it.</p>
 <tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
 <tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
 <li><strong>q</strong> – The query. Restrict the result to headwords matching this query.</li>
-<li><strong>fulltext</strong> – Fulltext query. Restrict the result to headwords of articles
+<li><strong>fulltext</strong> – Full-text query. Restrict the result to headwords of articles
 matching this text.</li>
 <li><strong>lang</strong> – <a class="reference internal" href="#t13n"><span class="std std-ref">transliteration</span></a> scheme of the <cite>q</cite> and <cite>fulltext</cite>
 parameters. Default “x-iso”.</li>
@@ -451,7 +445,7 @@ response may be different and is indicated in the response’s <cite>lang</cite>
 parameter.</p>
 <p>A server not supporting fulltext searches MUST return a http status 400 bad
 request.</p>
-<p>See also: the <a class="reference internal" href="#get--v1-" title="GET /v1/"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1/</span></code></a> endpoint.</p>
+<p>See also: the <a class="reference internal" href="#get--v1" title="GET /v1"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1</span></code></a> endpoint.</p>
 </dd></dl>
 
 <dl class="get">
@@ -468,11 +462,16 @@ request.</p>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
 <span class="p">{</span>
-  <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;v1/articles/11421&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;headwords_url&quot;</span><span class="p">:</span> <span class="s2">&quot;v1/headwords/43704&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;pi-Latn-x-iso&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;normalized_text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41s\u0101&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41s\u0101&quot;</span>
+  <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;v1/articles/11421&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;headwords_url&quot;</span><span class="p">:</span> <span class="s2">&quot;v1/headwords/43704&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;lang&quot;</span><span class="p">:</span> <span class="s2">&quot;pi-Latn-x-iso&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;normalized_text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41s\u0101&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;a-hi\u1e41s\u0101&quot;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&quot;limit&quot;</span><span class="p">:</span> <span class="mi">100</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -499,15 +498,15 @@ request.</p>
 </tr>
 </tbody>
 </table>
-<p>For the response object parameters see: <a class="reference internal" href="#get--v1-headwords-" title="GET /v1/headwords/"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1/headwords/</span></code></a>.</p>
+<p>For the response object parameters see: <a class="reference internal" href="#get--v1-headwords" title="GET /v1/headwords"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1/headwords</span></code></a>.</p>
 </dd></dl>
 
 <dl class="get">
-<dt id="get--v1-headwords-(id)-context-">
-<code class="descname">GET </code><code class="descname">/v1/headwords/</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><code class="descname">/context/</code><a class="headerlink" href="#get--v1-headwords-(id)-context-" title="Permalink to this definition">¶</a></dt>
+<dt id="get--v1-headwords-(id)-context">
+<code class="descname">GET </code><code class="descname">/v1/headwords/</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><code class="descname">/context</code><a class="headerlink" href="#get--v1-headwords-(id)-context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get some headwords that alphabetically surround the article’s headword.</p>
 <p><strong>Example request</strong>:</p>
-<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/headwords/43704/context/?limit=1</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/headwords/43704/context?limit=1</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">api.cpd.uni-koeln.de</span>
 </pre></div>
 </div>
@@ -556,7 +555,7 @@ request.</p>
 <tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
 <li><strong>limit</strong> – limit number of returned headwords. The call returns limit
 headwords before the headword, the headword, and limit
-headwords after the headword, totalling (limit * 2 + 1)
+headwords after the headword, totaling (limit * 2 + 1)
 headwords.  Default 100.</li>
 </ul>
 </td>
@@ -575,7 +574,69 @@ headwords.  Default 100.</li>
 </tr>
 </tbody>
 </table>
-<p>For the response object parameters see: <a class="reference internal" href="#get--v1-headwords-" title="GET /v1/headwords/"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1/headwords/</span></code></a></p>
+<p>For the response object parameters see: <a class="reference internal" href="#get--v1-headwords" title="GET /v1/headwords"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1/headwords</span></code></a></p>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--v1-articles">
+<code class="descname">GET </code><code class="descname">/v1/articles</code><a class="headerlink" href="#get--v1-articles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of articles.</p>
+<p><strong>Example request</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/articles?offset=3&amp;limit=3</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">api.cpd.uni-koeln.de</span>
+</pre></div>
+</div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;v1/articles/4&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;v1/articles/5&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;v1/articles/6&quot;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&quot;limit&quot;</span><span class="p">:</span> <span class="mi">3</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>limit</strong> – limit number. Default 100.</li>
+<li><strong>offset</strong> – offset number. Default 0.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Response Headers:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a> – application/json</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – no error</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.5">404 Not Found</a> – article not found</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>articles_url</strong> (<em>url</em>) – The endpoint URL of the article.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="get">
@@ -592,7 +653,12 @@ headwords.  Default 100.</li>
 <span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
 
 <span class="p">{</span>
-  <span class="nt">&quot;articles_url&quot;</span> <span class="p">:</span> <span class="s2">&quot;/v1/articles/42&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;articles_url&quot;</span><span class="p">:</span> <span class="s2">&quot;v1/articles/42&quot;</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&quot;limit&quot;</span><span class="p">:</span> <span class="mi">100</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -626,16 +692,16 @@ and does not contain URL special characters.</li>
 </tr>
 </tbody>
 </table>
-<p>A quite pointless endpoint.  Included for aesthetical reasons (symmetry with
-<a class="reference internal" href="#get--v1-headwords-(id)" title="GET /v1/headwords/(id)"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1/headwords/(id)</span></code></a>)</p>
+<p>Right now a quite pointless endpoint.  Included as placeholder for a later
+POST method, and for symmetry with <a class="reference internal" href="#get--v1-headwords-(id)" title="GET /v1/headwords/(id)"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1/headwords/(id)</span></code></a>.</p>
 </dd></dl>
 
 <dl class="get">
-<dt id="get--v1-articles-(id)-formats-">
-<code class="descname">GET </code><code class="descname">/v1/articles/</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><code class="descname">/formats/</code><a class="headerlink" href="#get--v1-articles-(id)-formats-" title="Permalink to this definition">¶</a></dt>
+<dt id="get--v1-articles-(id)-formats">
+<code class="descname">GET </code><code class="descname">/v1/articles/</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><code class="descname">/formats</code><a class="headerlink" href="#get--v1-articles-(id)-formats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of an article’s available formats.</p>
 <p><strong>Example request</strong>:</p>
-<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/articles/42/formats/</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/articles/42/formats</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">api.cpd.uni-koeln.de</span>
 </pre></div>
 </div>
@@ -759,11 +825,11 @@ extraneous information like headers, footers, navigation bars, etc. Default
 </dd></dl>
 
 <dl class="get">
-<dt id="get--v1-articles-(id)-headwords-">
-<code class="descname">GET </code><code class="descname">/v1/articles/</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><code class="descname">/headwords/</code><a class="headerlink" href="#get--v1-articles-(id)-headwords-" title="Permalink to this definition">¶</a></dt>
+<dt id="get--v1-articles-(id)-headwords">
+<code class="descname">GET </code><code class="descname">/v1/articles/</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><code class="descname">/headwords</code><a class="headerlink" href="#get--v1-articles-(id)-headwords" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a list of an article’s headwords.</p>
 <p><strong>Example request</strong>:</p>
-<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/articles/11412/headwords/</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/articles/11412/headwords</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="o">:</span> <span class="l">api.cpd.uni-koeln.de</span>
 </pre></div>
 </div>
@@ -822,7 +888,7 @@ extraneous information like headers, footers, navigation bars, etc. Default
 </tr>
 </tbody>
 </table>
-<p>For the response object parameters see: <a class="reference internal" href="#get--v1-headwords-" title="GET /v1/headwords/"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1/headwords/</span></code></a></p>
+<p>For the response object parameters see: <a class="reference internal" href="#get--v1-headwords" title="GET /v1/headwords"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1/headwords</span></code></a></p>
 </dd></dl>
 
 </div>

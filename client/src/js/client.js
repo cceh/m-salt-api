@@ -201,7 +201,7 @@ $ (document).ready (function () {
                     if (q !== '') {
                         let params = { 'lang' : st.get_t13n (preferred_lang) };
                         params[this.user.fulltext ? 'fulltext' : 'q'] = q;
-                        api.current_url = api.url + 'v1/headwords/?' + $.param (params);
+                        api.current_url = api.url + 'v1/headwords?' + $.param (params);
                     } else {
                         // FIXME: insert some kind of error message
                     }
@@ -219,15 +219,15 @@ $ (document).ready (function () {
 
                     this.api = this.get_api (data.dictionary_id);
 
-                    $.getJSON (this.api.url + data.articles_url + '/formats/', (json) => {
+                    $.getJSON (this.api.url + data.articles_url + '/formats', (json) => {
                         this.article_formats = json;
                         let article = this.get_preferred_doc (json);
                         article.text = this.sanitize_article (article.text);
                         this.article = article;
                         this.article_endpoint = data.articles_url;
                     });
-                    this.headwords.current_url = this.api.url + data.articles_url  + '/headwords/';
-                    this.context.current_url   = this.api.url + data.headwords_url + '/context/?limit=10';
+                    this.headwords.current_url = this.api.url + data.articles_url + '/headwords';
+                    this.context.current_url   = this.api.url + data.headwords_url + '/context?limit=10';
                     this.headwords.id = this.api.id;
                     this.context.id = this.api.id;
 
@@ -254,7 +254,7 @@ $ (document).ready (function () {
         for (let api of apis) {
             Object.assign (api, API); // assign defaults
             app.apis.push (api);
-            $.getJSON (api.url + 'v1/', (json) => {
+            $.getJSON (api.url + 'v1', (json) => {
                 for (const key in json) {
                     const value = json[key];
                     if (key === 'supported_langs_query') {

@@ -1,5 +1,5 @@
 <template>
-  <b-card no-body v-if="headwords.length" :header="'<b>' + data.short_name + '</b>'" class="salt-headwords">
+  <b-card no-body v-if="headwords.length" :header="data.short_name" class="salt-headwords">
     <b-list-group flush
 		  :data-script="user.query_lang" :data-dictionary-id="data.id">
       <b-list-group-item button
@@ -91,6 +91,10 @@ export default {
     },
 }
 
+$ (document).on ('mousedown', 'div.salt-headwords .list-group-item',  function (event) {
+    event.preventDefault ();
+});
+
 </script>
 
 <style lang="scss">
@@ -109,6 +113,9 @@ div.salt-headwords {
     }
     ul.pagination {
     	margin: 0.5rem 0;
+    }
+    .card-header {
+        font-weight: bold;
     }
 }
 </style>

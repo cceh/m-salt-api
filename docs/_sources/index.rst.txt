@@ -31,19 +31,13 @@ one or more headwords.
 The article may be available in many different formats, eg. as fully marked up
 TEI, or as a series of scanned images.
 
-The article may also be available in Devanagari or in a latin transliteration,
+The article may also be available in Devanagari or in a Latin transliteration,
 eg. SLP1 or Harvard-Kyoto.
 
 The relation between articles and headwords is 1:N.  A headword cannot point to
 more than one article but more than one headword may point to one article.
 
 The API is designed to allow a client to search multiple dictionaries at once.
-
-The API can be mounted on an arbitrary base URL. Examples::
-
-  https://api.cpd.uni-koeln.de/v1/
-  https://cpd.uni-koeln.de/api/v1/
-  https://www.uni-koeln.de/cpd/api/v1/
 
 All responses of this API are in JSON format.
 
@@ -107,9 +101,9 @@ Embedded HTML
 -------------
 
 The client using the API may wish to display the HTML of the article embedded in
-a page of the client's choice.  To make this seemless the HTML must be sanitized
+a page of the client's choice.  To make this seamless the HTML must be sanitized
 by the client and the CSS needed for correct display of your HTML should be
-provided by the :http:get:`/v1/` endpoint.
+provided by the :http:get:`/v1` endpoint.
 
 Sanitized HTML in articles may contain only the tags: div, p, span, i, b, em,
 strong, sup, sub, br, all with an optional class attribute.
@@ -122,7 +116,7 @@ different dictionaries in a visually pleasing way.
 Endpoints
 =========
 
-.. http:get:: /v1/
+.. http:get:: /v1
 
    Get information about the dictionary.
 
@@ -130,7 +124,7 @@ Endpoints
 
    .. sourcecode:: http
 
-      GET /v1/ HTTP/1.1
+      GET /v1 HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -153,9 +147,9 @@ Endpoints
    :resheader Content-Type: application/json
    :statuscode 200: no error
    :resjsonobj string short_name: A siglum or short name of the dictionary.
-                                  Max. 10 unicode characters.
+                                  Max. 10 Unicode characters.
    :resjsonobj string name: A longer name of the dictionary.
-                            Max. 80 unicode characters.
+                            Max. 80 Unicode characters.
    :resjsonobj url main_page_url: The URL of the main page of the dictionary.
    :resjsonobj string css: Optional.  Any CSS needed to display the HTML version
                            of your articles. Use either `css` or `css_url` or
@@ -168,12 +162,12 @@ Endpoints
                                  of preference.
 
    When sending the query to the server, the client MAY transliterate the user's
-   chosen t13n to one accepted by the server.  The client MUST display an error
-   message if unable to do so.  The client SHOULD use the user's chosen t13n
-   scheme if the server accepts it.
+   chosen transliteration to one accepted by the server.  The client MUST
+   display an error message if unable to do so.  The client SHOULD use the
+   user's chosen transliteration scheme if the server accepts it.
 
 
-.. http:get:: /v1/headwords/
+.. http:get:: /v1/headwords
 
    Get a list of headwords.
 
@@ -181,7 +175,7 @@ Endpoints
 
    .. sourcecode:: http
 
-      GET /v1/headwords/?q=ahimsa*&lang=x-slp1&limit=3 HTTP/1.1
+      GET /v1/headwords?q=ahimsa*&lang=x-slp1&limit=3 HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -219,7 +213,7 @@ Endpoints
       }
 
    :query q: The query. Restrict the result to headwords matching this query.
-   :query fulltext: Fulltext query. Restrict the result to headwords of articles
+   :query fulltext: Full-text query. Restrict the result to headwords of articles
                     matching this text.
    :query lang: :ref:`transliteration <t13n>` scheme of the `q` and `fulltext`
                 parameters. Default "x-iso".
@@ -257,7 +251,7 @@ Endpoints
    A server not supporting fulltext searches MUST return a http status 400 bad
    request.
 
-   See also: the :http:get:`/v1/` endpoint.
+   See also: the :http:get:`/v1` endpoint.
 
 
 .. http:get:: /v1/headwords/(id)
@@ -279,11 +273,16 @@ Endpoints
       Content-Type: application/json
 
       {
-        "articles_url": "v1/articles/11421",
-        "headwords_url": "v1/headwords/43704",
-        "lang": "pi-Latn-x-iso",
-        "normalized_text": "a-hi\u1e41s\u0101",
-        "text": "a-hi\u1e41s\u0101"
+        "data": [
+          {
+            "articles_url": "v1/articles/11421",
+            "headwords_url": "v1/headwords/43704",
+            "lang": "pi-Latn-x-iso",
+            "normalized_text": "a-hi\u1e41s\u0101",
+            "text": "a-hi\u1e41s\u0101"
+          }
+        ],
+        "limit": 100
       }
 
    :param id: The headword id. See: :http:get:`/v1/articles/(id)`.
@@ -291,10 +290,10 @@ Endpoints
    :statuscode 200: no error
    :statuscode 404: headword not found
 
-   For the response object parameters see: :http:get:`/v1/headwords/`.
+   For the response object parameters see: :http:get:`/v1/headwords`.
 
 
-.. http:get:: /v1/headwords/(id)/context/
+.. http:get:: /v1/headwords/(id)/context
 
    Get some headwords that alphabetically surround the article's headword.
 
@@ -302,7 +301,7 @@ Endpoints
 
    .. sourcecode:: http
 
-      GET /v1/headwords/43704/context/?limit=1 HTTP/1.1
+      GET /v1/headwords/43704/context?limit=1 HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -342,13 +341,55 @@ Endpoints
    :param id: The article id. See: :http:get:`/v1/articles/(id)`.
    :query limit: limit number of returned headwords. The call returns limit
                  headwords before the headword, the headword, and limit
-                 headwords after the headword, totalling (limit * 2 + 1)
+                 headwords after the headword, totaling (limit * 2 + 1)
                  headwords.  Default 100.
    :resheader Content-Type: application/json
    :statuscode 200: no error
    :statuscode 404: article not found
 
-   For the response object parameters see: :http:get:`/v1/headwords/`
+   For the response object parameters see: :http:get:`/v1/headwords`
+
+
+.. http:get:: /v1/articles
+
+   Get a list of articles.
+
+   **Example request**:
+
+   .. sourcecode:: http
+
+      GET /v1/articles?offset=3&limit=3 HTTP/1.1
+      Host: api.cpd.uni-koeln.de
+
+   **Example response**:
+
+   .. sourcecode:: http
+
+      HTTP/1.1 200 OK
+      Content-Type: application/json
+
+      {
+        "data": [
+          {
+            "articles_url": "v1/articles/4"
+          },
+          {
+            "articles_url": "v1/articles/5"
+          },
+          {
+            "articles_url": "v1/articles/6"
+          }
+        ],
+        "limit": 3
+      }
+
+   :query limit: limit number. Default 100.
+   :query offset: offset number. Default 0.
+   :resheader Content-Type: application/json
+   :statuscode 200: no error
+   :statuscode 404: article not found
+   :resjsonobj url articles_url: The endpoint URL of the article.
+
 
 
 .. http:get:: /v1/articles/(id)
@@ -370,7 +411,12 @@ Endpoints
       Content-Type: application/json
 
       {
-        "articles_url" : "/v1/articles/42",
+        "data": [
+          {
+            "articles_url": "v1/articles/42"
+          }
+        ],
+        "limit": 100
       }
 
    :param id: The article id. Can be any string that is convenient to the server
@@ -380,11 +426,11 @@ Endpoints
    :statuscode 404: article not found
    :resjsonobj url articles_url: The endpoint URL of the article.
 
-   A quite pointless endpoint.  Included for aesthetical reasons (symmetry with
-   :http:get:`/v1/headwords/(id)`)
+   Right now a quite pointless endpoint.  Included as placeholder for a later
+   POST method, and for symmetry with :http:get:`/v1/headwords/(id)`.
 
 
-.. http:get:: /v1/articles/(id)/formats/
+.. http:get:: /v1/articles/(id)/formats
 
    Get a list of an article's available formats.
 
@@ -392,7 +438,7 @@ Endpoints
 
    .. sourcecode:: http
 
-      GET /v1/articles/42/formats/ HTTP/1.1
+      GET /v1/articles/42/formats HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -500,7 +546,7 @@ Endpoints
    "article".
 
 
-.. http:get:: /v1/articles/(id)/headwords/
+.. http:get:: /v1/articles/(id)/headwords
 
    Get a list of an article's headwords.
 
@@ -508,7 +554,7 @@ Endpoints
 
    .. sourcecode:: http
 
-      GET /v1/articles/11412/headwords/ HTTP/1.1
+      GET /v1/articles/11412/headwords HTTP/1.1
       Host: api.cpd.uni-koeln.de
 
    **Example response**:
@@ -545,7 +591,7 @@ Endpoints
    :statuscode 200: no error
    :statuscode 404: article not found
 
-   For the response object parameters see: :http:get:`/v1/headwords/`
+   For the response object parameters see: :http:get:`/v1/headwords`
 
 
 Indices and tables
