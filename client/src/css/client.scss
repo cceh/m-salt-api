@@ -1,5 +1,5 @@
-@import "node_modules/bootstrap/scss/bootstrap.scss";
-@import "./common.scss";
+@import "custom";
+@import "fontawesome-all.css";
 
 @font-face {
   font-family: 'siddhanta';
@@ -14,43 +14,28 @@ html {
 }
 
 body {
-    /* Margin bottom by footer height */
-    margin-top: 60px;
-    margin-bottom: 60px;
     overflow-y: scroll;
-}
-
-.header {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 60px;
-    line-height: 60px; /* Vertically center the text there */
-    background-color: $bg-gray;
-    h1 {
-        line-height: inherit;
-    }
 }
 
 div.left-col, article.center-col, div.right-col {
     margin: 1em 0;
 }
 
-.footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    /* Set the fixed height of the footer here */
-    height: 60px;
-    line-height: 60px; /* Vertically center the text there */
-    background-color: $bg-gray;
-}
-
-div.dictionary-list {
-    ul {
-        list-style-type: none;
-        margin-top: 1rem;
-        padding: 0;
+.salt-navbar-rest {
+    position: relative;
+    .prefs-dropdown {
+        position: static;
+        .dropdown-menu-right {
+            left: auto;
+            right: 0;
+        }
+        .dictionary-list {
+            ul {
+                list-style-type: none;
+                margin-top: 1rem;
+                padding: 0;
+            }
+        }
     }
 }
 

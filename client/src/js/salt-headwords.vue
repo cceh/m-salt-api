@@ -47,9 +47,11 @@ export default {
     ],
     watch: {
         'data.current_url' : function (new_value) {
+	    this.headwords = [];
+	    this.current_page = 1;
+	    this.total_rows = 0;
 	    $.getJSON (new_value, (json) => {
 		this.headwords = json.data;
-		this.current_page = 1;
 		this.total_rows = json.data.length;
 	    });
         },

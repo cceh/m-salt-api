@@ -87,7 +87,6 @@ $ (document).ready (function () {
             // with some defaults filled in for easier testing
             user: {
                 active_apis: ['cpd', 'cpd2'],
-                fulltext: false,
                 query: '',
                 query_lang: 'x-iso',
                 article_lang: 'x-iso',
@@ -182,6 +181,15 @@ $ (document).ready (function () {
                 this.context.current_url = '';
             },
             on_search: function (event) {
+                this.do_search (event, 'q');
+            },
+            on_fulltext_search: function (event) {
+                this.do_search (event, 'fulltext');
+            },
+            do_search: function (event, fulltext) {
+                for (let api of this.apis) {
+                    api.current_url = '';
+                }
                 for (let id of this.user.active_apis) {
                     let api = this.get_api (id);
                     let q = '';
@@ -200,7 +208,7 @@ $ (document).ready (function () {
                     }
                     if (q !== '') {
                         let params = { 'lang' : st.get_t13n (preferred_lang) };
-                        params[this.user.fulltext ? 'fulltext' : 'q'] = q;
+                        params[fulltext] = q;
                         api.current_url = api.url + 'v1/headwords?' + $.param (params);
                     } else {
                         // FIXME: insert some kind of error message

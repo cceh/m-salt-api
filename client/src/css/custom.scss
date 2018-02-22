@@ -1,0 +1,8 @@
+// See: https://getbootstrap.com/docs/4.0/getting-started/theming/
+
+$theme-colors: (
+  "primary": #41799e,
+  "brand-color": #41799e
+);
+
+@import "~bootstrap/scss/bootstrap";
