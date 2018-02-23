@@ -1,5 +1,5 @@
 [
-    { "id": "cpd",  "url": "http://api.cpd.uni-koeln.de/" },
-    { "id": "cpd2", "url": "http://api.cpd.uni-koeln.de/" },
-    { "id": "cpd3", "url": "http://api.cpd.uni-koeln.de/" }
+    { "id": "cpd",  "short_name" : "Critical Pāli", "url": "http://api.cpd.uni-koeln.de/" },
+    { "id": "cpd2", "short_name" : "Critical Pāli", "url": "http://api.cpd.uni-koeln.de/" },
+    { "id": "cpd3", "short_name" : "Critical Pāli", "url": "http://api.cpd.uni-koeln.de/" }
 ]

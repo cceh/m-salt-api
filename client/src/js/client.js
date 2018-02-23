@@ -30,8 +30,14 @@ const API = { // defaults for apis
     'main_page_url': '',
     'css':           '',
     'supported_langs_query': [ 'x-iso' ],
+    'caption':       '',
+    'icon':          '',
     'current_url':   '',
 }
+
+const icon_spinner    = '<i class="fas fa-sync fa-spin"></i>';
+const icon_dictionary = '<i class="fas fa-book"></i>';
+const icon_offline    = '<i class="fas fa-ambulance"></i>';
 
 // Register a global custom directive called `v-focus`
 Vue.directive ('focus', {
@@ -60,13 +66,13 @@ $ (document).ready (function () {
 
             headwords: { // headwords of chosen article, object
                 dict_id: '',
-                short_name: 'Headwords',
+                caption: 'Article Headwords',
                 current_url: '',
             },
 
             context: {  // context of chosen headword
                 dict_id: '',
-                short_name: 'Context',
+                caption: 'Article Context',
                 current_url: '',
             },
 
@@ -104,10 +110,16 @@ $ (document).ready (function () {
                 },
                 deep: true,
             },
+            'user.active_apis' : function (new_value) {
+                Vue.nextTick (() => app.do_search ('q'));
+            },
         },
         computed: {
             user_query_in_deva: function () {
                 return st.xlate (this.user.query, this.user.query_lang, 'x-deva');
+            },
+            active_apis : function () {
+                return this.apis.filter (api => this.user.active_apis.includes (api.id));
             },
             article_t13n: function () {
                 if (this.article) {
@@ -181,37 +193,39 @@ $ (document).ready (function () {
                 this.context.current_url = '';
             },
             on_search: function (event) {
-                this.do_search (event, 'q');
+                this.do_search ('q');
             },
             on_fulltext_search: function (event) {
-                this.do_search (event, 'fulltext');
+                this.do_search ('fulltext');
             },
-            do_search: function (event, fulltext) {
+            do_search: function (fulltext) {
                 for (let api of this.apis) {
                     api.current_url = '';
                 }
                 for (let id of this.user.active_apis) {
                     let api = this.get_api (id);
-                    let q = '';
-                    let preferred_lang = '';
-                    let candidates = api.supported_langs_query.filter (
-                        x => !st.need_t13n (x, this.user.query_lang)
-                    );
-                    if (candidates.length > 0) {
-                        // the current t13n is supported by the server, use it
-                        preferred_lang = this.user.query_lang;
-                        q = this.user.query;
-                    } else {
-                        // use the first t13n that is supported by the server
-                        preferred_lang = api.supported_langs_query[0];
-                        q = st.xlate (this.user.query, this.user.query_lang, preferred_lang);
-                    }
-                    if (q !== '') {
-                        let params = { 'lang' : st.get_t13n (preferred_lang) };
-                        params[fulltext] = q;
-                        api.current_url = api.url + 'v1/headwords?' + $.param (params);
-                    } else {
-                        // FIXME: insert some kind of error message
+                    if (api) {
+                        let q = '';
+                        let preferred_lang = '';
+                        let candidates = api.supported_langs_query.filter (
+                            x => !st.need_t13n (x, this.user.query_lang)
+                        );
+                        if (candidates.length > 0) {
+                            // the current t13n is supported by the server, use it
+                            preferred_lang = this.user.query_lang;
+                            q = this.user.query;
+                        } else {
+                            // use the first t13n that is supported by the server
+                            preferred_lang = api.supported_langs_query[0];
+                            q = st.xlate (this.user.query, this.user.query_lang, preferred_lang);
+                        }
+                        if (q !== '') {
+                            let params = { 'lang' : st.get_t13n (preferred_lang) };
+                            params[fulltext] = q;
+                            api.current_url = api.url + 'v1/headwords?' + $.param (params);
+                        } else {
+                            // FIXME: insert some kind of error message
+                        }
                     }
                 }
             },
@@ -261,8 +275,10 @@ $ (document).ready (function () {
     $.getJSON ('api-list.json', (apis) => {
         for (let api of apis) {
             Object.assign (api, API); // assign defaults
+            api.caption = api.short_name;
+            api.icon = icon_spinner;
             app.apis.push (api);
-            $.getJSON (api.url + 'v1', (json) => {
+            $.getJSON (api.url + 'v1').done ((json) => {
                 for (const key in json) {
                     const value = json[key];
                     if (key === 'supported_langs_query') {
@@ -283,6 +299,12 @@ $ (document).ready (function () {
                     }
                     api[key] = value;
                 }
+                api.caption = api.short_name;
+                api.icon = icon_dictionary;
+                Vue.nextTick (() => app.do_search ('q'));
+            }).fail ((json) => {
+                api.caption = api.short_name;
+                api.icon = icon_offline;
             });
         }
     });
@@ -325,4 +347,10 @@ $ (document).ready (function () {
     }).on ('dragenter', function (event) {
         event.preventDefault ();
     });
+
+    // prevent buttons from taking focus
+    $ (document).on ('mousedown', '.prevent-mouse-down',  function (event) {
+        event.preventDefault ();
+    });
+
 });

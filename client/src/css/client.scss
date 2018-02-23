@@ -22,25 +22,19 @@ div.left-col, article.center-col, div.right-col {
 }
 
 .salt-navbar-rest {
-    position: relative;
     .prefs-dropdown {
-        position: static;
-        .dropdown-menu-right {
-            left: auto;
-            right: 0;
-        }
         .dictionary-list {
             ul {
                 list-style-type: none;
                 margin-top: 1rem;
+                margin-bottom: 0;
                 padding: 0;
+                label {
+                    white-space: nowrap;
+                }
             }
         }
     }
-}
-
-div.results {
-    margin-top: 1em;
 }
 
 article.article {
@@ -53,15 +47,18 @@ article.article {
     }
 }
 
-#search {
-    background: white;
-    transition: background 0.5s linear;
+.search-form {
+    max-width: 80%;
+    #search {
+        background: white;
+        transition: background 0.5s linear;
+    }
 }
 
 [data-script='deva'] {
     font-family: siddhanta;
 }
 
-div.q_in_deva {
+.q_in_deva {
     font-size: x-large;
 }
