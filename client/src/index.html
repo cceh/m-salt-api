@@ -16,69 +16,74 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
           <div class="container">
 
-            <div class="collapse navbar-collapse justify-content salt-navbar-rest mr-2" id="navbarSupportedContent">
+            <div class="collapse navbar-collapse justify-content-between salt-navbar-rest mr-2" id="navbarSupportedContent">
 
               <!-- brand -->
-              <span class="navbar-brand mb-0 mr-auto h1">
+              <div class="navbar-brand mb-0 mr-auto h1">
                 <img src="images/cceh-logo.png" width="30" height="30" class="d-inline-block align-top mr-2" alt=""/>
                 <span>M-SALT API Client</span>
-              </span>
+              </div>
 
-              <span class="q_in_deva mb-0 mr-auto" data-script="deva">{{ user_query_in_deva }}</span>
+              <div class="d-none d-lg-inline-block q_in_deva mr-auto" data-script="x-deva">{{ user_query_in_deva }}</div>
 
-              <div>
-                <!-- prefs group -->
-                <div class="dropdown d-inline-block prefs-dropdown mr-2">
-                  <button class="btn dropdown-toggle" title="Dictionary Selection"
-                          v-bind:class="{ 'btn-outline-primary' : active_apis.length > 0,
-                                        'btn-outline-danger'  : active_apis.length === 0}"
-                          type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="fas fa-book"></span>
-                    <span>{{active_apis.length}} of {{apis.length}}</span>
-                  </button>
-                  <div class="dropdown-menu dictionary-list px-4 py-3">
-                    <div class="form-group">
-                      <div>Available Dictionaries:</div>
-                      <ul>
-                        <li v-for="api in apis" :data-id="api.id">
-                          <label>
-                            <input v-model="user.active_apis" type="checkbox" :value="api.id"/>
-                            {{ api.name }}
-                          </label>
-                        </li>
-                      </ul>
+              <!-- prefs group -->
+              <div class="mr-lg-2">
+                <div class="btn-group" role="group">
+                  <!-- dictionaries dropdown -->
+                  <div class="btn-group prefs-dropdown" role="group">
+                    <button class="btn dropdown-toggle" title="Dictionary Selection" v-b-tooltip.hover.left=""
+                            v-bind:class="{ 'btn-outline-primary' : selected_apis.length > 0,
+                                          'btn-outline-danger'  : selected_apis.length === 0}"
+                            type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <span class="fas fa-book"></span>
+                      <span>{{selected_apis.length}} of {{apis.length}}</span>
+                    </button>
+                    <div class="dropdown-menu dictionary-list px-4 py-3">
+                      <div class="form-group">
+                        <b-form-group label="Available Dictionaries:">
+                          <ul>
+                            <li v-for="api in apis" :data-id="api.id">
+                              <b-form-checkbox v-model="api.selected"
+                                               class="dont-close" :class="{ 'api-danger' : api.status === 'offline', 'api-success' : api.status === 'online' }">
+                                <span>{{ api.name || api.short_name }}</span>
+                              </b-form-checkbox>
+                            </li>
+                          </ul>
+                        </b-form-group>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- output t13n dropdown -->
+                  <div class="btn-group" role="group">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button"
+                            title="Output Transliteration Selection" v-b-tooltip.hover.bottom=""
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <span class="fas fa-desktop"></span>
+                      {{ lang_to_desc (user.article_lang) }}
+                    </button>
+                    <div class="dropdown-menu">
+                      <button v-for="tn in supported_langs" v-on:click.prevent="on_user_article_lang"
+                              class="dropdown-item" type="button" :data-lang="tn.id">{{ tn.longdesc }}</button>
+                    </div>
+                  </div>
+
+                  <!-- search t13n dropdown -->
+                  <div class="btn-group" role="group">
+                    <button class="btn btn-outline-primary dropdown-toggle" type="button"
+                            title="Input Transliteration Selection" v-b-tooltip.hover.right=""
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <span class="fas fa-keyboard"></span>
+                      <span>{{ lang_to_desc (user.query_lang) }}</span>
+                    </button>
+                    <div class="dropdown-menu">
+                      <button v-for="tn in supported_langs" v-on:click.prevent="on_user_query_lang"
+                              class="dropdown-item" type="button" :data-lang="tn.id">{{ tn.longdesc }}</button>
                     </div>
                   </div>
                 </div>
-
-                <!-- output t13n -->
-                <div class="dropdown d-inline-block article-lang-dropdown mr-2">
-                  <button class="btn btn-outline-primary dropdown-toggle" type="button"
-                          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="fas fa-desktop"></span>
-                    {{ lang_to_desc (user.article_lang) }}
-                  </button>
-                  <div class="dropdown-menu">
-                    <button v-for="tn in supported_langs" v-on:click.prevent="on_user_article_lang"
-                            class="dropdown-item" type="button" :data-lang="tn.id">{{ tn.longdesc }}</button>
-                  </div>
-                </div>
-
-                <!-- search t13n -->
-                <div class="dropdown d-inline-block keyboard-dropdown">
-                  <button class="btn btn-outline-primary dropdown-toggle" type="button"
-                          title="Transliteration Selection"
-                          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="fas fa-keyboard"></span>
-                    <span>{{ lang_to_desc (user.query_lang) }}</span>
-                  </button>
-                  <div class="dropdown-menu">
-                    <button v-for="tn in supported_langs" v-on:click.prevent="on_user_query_lang"
-                            class="dropdown-item" type="button" :data-lang="tn.id">{{ tn.longdesc }}</button>
-                  </div>
-                </div>
               </div>
-            </div>
+            </div> <!-- .collapse -->
 
             <!-- search group -->
             <form class="search-form form-inline my-2 my-lg-0">
@@ -90,13 +95,15 @@
                        aria-label="Search"/>
                 <div class="input-group-append">
                   <button v-on:click.prevent="on_search"
-                          class="btn btn-outline-primary prevent-mouse-down" title="Headword Search">
+                          class="btn btn-outline-primary prevent-mouse-down"
+                          title="Headword Search" v-b-tooltip.hover.bottom="">
                     <span class="fa fa-search"></span>
                   </button>
                 </div>
                 <div class="input-group-append">
                   <button v-on:click.prevent="on_fulltext_search"
-                          class="btn btn-outline-primary prevent-mouse-down" title="Fulltext Search">
+                          class="btn btn-outline-primary prevent-mouse-down"
+                          title="Fulltext Search" v-b-tooltip.hover.bottom="">
                     <span class="fa fa-search-plus"></span>
                   </button>
                 </div>
@@ -118,26 +125,28 @@
           <div class="container bs-docs-container">
             <div class="row">
               <div class="col-md-3 left-col">
-                <div v-for="data in active_apis" is="salt-headwords"
+                <div v-for="data in apis" is="salt-headwords"
                      v-on:on_article="on_article"
-                     :api="api"
+                     :article="article"
                      :data="data"
                      :user="user"
-                     :per_page="10"
-                     :article_endpoint="article_endpoint">
+                     :per_page="10">
                 </div>
               </div>
 
               <!-- article -->
 
               <article class="article col-md-6 center-col">
-                <div v-if="api &amp;&amp; article">
-                  <h2><a :href="api.main_page_url">{{api.name}}</a></h2>
+                <div v-if="article.api &amp;&amp; article.api.status === 'busy'" class="text-center font-size-xxl">
+                  <i class="fas fa-sync fa-spin text-warning"></i>
+                </div>
+                <div v-if="article.api &amp;&amp; article.article">
+                  <h2><a :href="article.api.main_page_url">{{article.api.name}}</a></h2>
                   <div v-if="canonical_url" class="canonical_url">
                     Cite:
                     <a :href="canonical_url">{{ canonical_url }}</a>
                   </div>
-                  <div v-html="article_t13n" id="article" :data-lang="article.lang"></div>
+                  <div v-html="article_t13n" id="article" :data-lang="article.article.lang"></div>
                 </div>
               </article>
 
@@ -146,22 +155,20 @@
 
                 <div is="salt-headwords" v-if="headwords" class="headwords"
                      v-on:on_article="on_article"
-                     :api="api"
+                     :article="article"
                      :data="headwords"
                      :user="user"
-                     :per_page="100"
-                     :article_endpoint="article_endpoint">
+                     :per_page="100">
                 </div>
 
                 <!-- context -->
 
                 <div is="salt-headwords" v-if="context" class="context"
                      v-on:on_article="on_article"
-                     :api="api"
+                     :article="article"
                      :data="context"
                      :user="user"
-                     :per_page="100"
-                     :article_endpoint="article_endpoint">
+                     :per_page="100">
                 </div>
               </div>
 

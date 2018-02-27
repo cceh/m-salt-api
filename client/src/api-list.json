@@ -1,5 +1,6 @@
 [
     { "id": "cpd",  "short_name" : "Critical Pāli", "url": "http://api.cpd.uni-koeln.de/" },
     { "id": "cpd2", "short_name" : "Critical Pāli", "url": "http://api.cpd.uni-koeln.de/" },
-    { "id": "cpd3", "short_name" : "Critical Pāli", "url": "http://api.cpd.uni-koeln.de/" }
+    { "id": "cpd3", "short_name" : "Critical Pāli", "url": "http://api.cpd.uni-koeln.de/" },
+    { "id": "off",  "short_name" : "Offline Dict",  "url": "http://api.example.com/" }
 ]

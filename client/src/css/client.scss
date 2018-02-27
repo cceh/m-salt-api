@@ -1,12 +1,12 @@
+/*!
+ * M-SALT API client
+ *
+ * @author Marcello Perathoner
+ */
+
 @import "custom";
 @import "fontawesome-all.css";
-
-@font-face {
-  font-family: 'siddhanta';
-  src: url('../webfonts/siddhanta.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
+@import "siddhanta.css";
 
 html {
     position: relative;
@@ -32,16 +32,18 @@ div.left-col, article.center-col, div.right-col {
                 label {
                     white-space: nowrap;
                 }
+                .custom-checkbox.api-danger .custom-control-input:checked ~ .custom-control-label::before {
+                    background-color: var(--danger);
+                }
+                .custom-checkbox.api-success .custom-control-input:checked ~ .custom-control-label::before {
+                    background-color: var(--success);
+                }
             }
         }
     }
 }
 
 article.article {
-    div.article-lang-dropdown {
-        float: left;
-        margin-right: 1em;
-    }
     div.canonical_url {
         margin: 1em 0;
     }
@@ -55,10 +57,24 @@ article.article {
     }
 }
 
-[data-script='deva'] {
+[data-script='x-deva'] {
     font-family: siddhanta;
+}
+[data-script]:not([data-script='x-deva']) {
+    font-family: var(--font-family-sans-serif);
 }
 
 .q_in_deva {
     font-size: x-large;
+}
+
+.font-size-xxl {
+    font-size: 800%;
+}
+
+@media (-moz-touch-enabled: 1), (pointer: coarse) {
+    // hide tooltips on touch devices
+    .tooltip {
+        display: none !important;
+    }
 }

@@ -4,10 +4,6 @@ module.exports = {
     entry : [
         './src/js/client.js',
     ],
-    devtool: 'eval-source-map',
-    devServer: {
-        contentBase: './src',  // so we don't have to copy files to dist
-    },
     output : {
         filename: 'bundle.js',
         path: path.resolve (__dirname, 'dist')
