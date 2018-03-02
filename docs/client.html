@@ -1,0 +1,383 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>M-SALT API Client &mdash; M-SALT API 0.1.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/my_theme.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="M-SALT API 0.1.1 documentation" href="index.html"/>
+        <link rel="prev" title="M-SALT API 0.1 Documentation" href="api.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> M-SALT API
+          
+
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">M-SALT API 0.1 Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#concepts">Concepts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api.html#transliterations">Transliterations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api.html#embedded-html">Embedded HTML</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#endpoints">Endpoints</a></li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">M-SALT API Client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#initialization">Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#headword-search">Headword Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#article-retrieval">Article Retrieval</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">M-SALT API</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>M-SALT API Client</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/client.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="m-salt-api-client">
+<h1>M-SALT API Client<a class="headerlink" href="#m-salt-api-client" title="Permalink to this headline">¶</a></h1>
+<p>A reference implementation of a client of the M-SALT API.</p>
+<div class="section" id="initialization">
+<span id="seq-init"></span><h2>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h2>
+<p>The client initializes itself, gets a list of known active APIs, and calls the
+<a class="reference internal" href="api.html#get--v1" title="GET /v1"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1</span></code></a> endpoint of each known API to get the API status and further
+information.</p>
+<p class="plantuml">
+<img src="_images/plantuml-1ba7433ac28dc62675f7c79cc8ef85ee8e9a3b6e.png" alt="participant User
+participant Client as c
+participant Portal as s
+participant &quot;API 1&quot; as a1
+participant &quot;API 2&quot; as a2
+participant &quot;API 3&quot; as a3
+
+skinparam sequence {
+       LifeLineBackgroundColor LightGoldenRodYellow
+}
+
+User -&gt; c: open client\nin browser
+activate c
+
+c -&gt; s: GET /api-list.json
+activate s
+note over s: list contains:\nAPI 1, API 2, and API 3
+s -&gt; c: API list
+deactivate s
+
+c -&gt; a1: GET v1
+activate a1
+c -&gt; a2: GET v1
+activate a2
+c -&gt; a3: GET v1
+activate a3
+
+note over a2
+   responses are sent
+   in arbitrary order
+end note
+
+a2 -&gt; c: info
+deactivate a2
+c -&gt; User: show\ndictionary
+
+a3 -&gt; c: info
+deactivate a3
+c -&gt; User: show\ndictionary
+
+a1 -&gt; c: info
+deactivate a1
+c -&gt; User: show\ndictionary
+deactivate c" />
+</p>
+</div>
+<div class="section" id="headword-search">
+<span id="seq-search"></span><h2>Headword Search<a class="headerlink" href="#headword-search" title="Permalink to this headline">¶</a></h2>
+<p>The client transliterates the user input into transliterations accepted by each
+API and calls their <a class="reference internal" href="api.html#get--v1-headwords" title="GET /v1/headwords"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1/headwords</span></code></a> endpoints. It then transliterates
+the answers received and displays them to the user.  Transliteration occurs only
+if necessary.</p>
+<p class="plantuml">
+<img src="_images/plantuml-8f5d0c47b402cf452edf91a816a746855d63b3af.png" alt="participant User
+participant Client as c
+participant &quot;API 1&quot; as a1
+participant &quot;API 2&quot; as a2
+participant &quot;API 3&quot; as a3
+
+skinparam sequence {
+       LifeLineBackgroundColor LightGoldenRodYellow
+}
+
+User -&gt; c: search\nheadword
+activate c
+||20||
+hnote over c: transliterate (3x)
+||20||
+c -&gt; a1: GET v1/headwords
+activate a1
+c -&gt; a2: GET v1/headwords
+activate a2
+c -&gt; a3: GET v1/headwords
+activate a3
+||40||
+a1 -&gt; c: headwords
+deactivate a1
+hnote over c: transliterate
+c -&gt; User: display\nheadwords
+
+a3 -&gt; c: headwords
+deactivate a3
+hnote over c: transliterate
+c -&gt; User: display\nheadwords
+
+a2 -&gt; c: headwords
+deactivate a2
+hnote over c: transliterate
+c -&gt; User: display\nheadwords
+
+deactivate c" />
+</p>
+</div>
+<div class="section" id="article-retrieval">
+<span id="seq-article"></span><h2>Article Retrieval<a class="headerlink" href="#article-retrieval" title="Permalink to this headline">¶</a></h2>
+<p>The client calls the <a class="reference internal" href="api.html#get--v1-articles-(id)-formats" title="GET /v1/articles/(id)/formats"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1/articles/(id)/formats</span></code></a> endpoint, retrieves
+the available formats from the API, and selects the most appropriate one.  It
+then retrieves the article text (if not already embedded in the response) and
+displays it to the user.  The client transliterates marked sections of the
+article if necessary.  The client allows the user to page through articles
+retrieved in multiple parts (eg. as a series of scans).</p>
+<p class="plantuml">
+<img src="_images/plantuml-2d900200af860ffb52d9d74e27006f9c3dafd45d.png" alt="participant User
+participant Client as c
+participant &quot;API&quot; as a1
+
+skinparam sequence {
+       LifeLineBackgroundColor LightGoldenRodYellow
+}
+
+User -&gt; c: select\narticle
+activate c
+
+c -&gt; a1: GET v1/articles/42/formats
+activate a1
+a1 -&gt; c: formats
+deactivate a1
+||20||
+hnote over c : decide best format
+||20||
+loop eventually retrieve external urls
+   c -&gt; a1: GET external url
+   activate a1
+   a1 -&gt; c: text or image
+   deactivate a1
+end
+||20||
+hnote over c: transliterate
+||20||
+c -&gt; User: display article
+
+deactivate c" />
+</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="api.html" class="btn btn-neutral" title="M-SALT API 0.1 Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018 CCeH - Licensed under the GNU GPL v3 or later.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

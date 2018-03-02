@@ -1,0 +1,160 @@
+===================
+ M-SALT API Client
+===================
+
+A reference implementation of a client of the M-SALT API.
+
+
+.. _seq-init:
+
+Initialization
+==============
+
+The client initializes itself, gets a list of known active APIs, and calls the
+:http:get:`/v1` endpoint of each known API to get the API status and further
+information.
+
+.. uml::
+
+   participant User
+   participant Client as c
+   participant Portal as s
+   participant "API 1" as a1
+   participant "API 2" as a2
+   participant "API 3" as a3
+
+   skinparam sequence {
+	  LifeLineBackgroundColor LightGoldenRodYellow
+   }
+
+   User -> c: open client\nin browser
+   activate c
+
+   c -> s: GET /api-list.json
+   activate s
+   note over s: list contains:\nAPI 1, API 2, and API 3
+   s -> c: API list
+   deactivate s
+
+   c -> a1: GET v1
+   activate a1
+   c -> a2: GET v1
+   activate a2
+   c -> a3: GET v1
+   activate a3
+
+   note over a2
+      responses are sent
+      in arbitrary order
+   end note
+
+   a2 -> c: info
+   deactivate a2
+   c -> User: show\ndictionary
+
+   a3 -> c: info
+   deactivate a3
+   c -> User: show\ndictionary
+
+   a1 -> c: info
+   deactivate a1
+   c -> User: show\ndictionary
+   deactivate c
+
+
+.. _seq-search:
+
+Headword Search
+===============
+
+The client transliterates the user input into transliterations accepted by each
+API and calls their :http:get:`/v1/headwords` endpoints. It then transliterates
+the answers received and displays them to the user.  Transliteration occurs only
+if necessary.
+
+.. uml::
+
+   participant User
+   participant Client as c
+   participant "API 1" as a1
+   participant "API 2" as a2
+   participant "API 3" as a3
+
+   skinparam sequence {
+	  LifeLineBackgroundColor LightGoldenRodYellow
+   }
+
+   User -> c: search\nheadword
+   activate c
+   ||20||
+   hnote over c: transliterate (3x)
+   ||20||
+   c -> a1: GET v1/headwords
+   activate a1
+   c -> a2: GET v1/headwords
+   activate a2
+   c -> a3: GET v1/headwords
+   activate a3
+   ||40||
+   a1 -> c: headwords
+   deactivate a1
+   hnote over c: transliterate
+   c -> User: display\nheadwords
+
+   a3 -> c: headwords
+   deactivate a3
+   hnote over c: transliterate
+   c -> User: display\nheadwords
+
+   a2 -> c: headwords
+   deactivate a2
+   hnote over c: transliterate
+   c -> User: display\nheadwords
+
+   deactivate c
+
+
+.. _seq-article:
+
+Article Retrieval
+=================
+
+The client calls the :http:get:`/v1/articles/(id)/formats` endpoint, retrieves
+the available formats from the API, and selects the most appropriate one.  It
+then retrieves the article text (if not already embedded in the response) and
+displays it to the user.  The client transliterates marked sections of the
+article if necessary.  The client allows the user to page through articles
+retrieved in multiple parts (eg. as a series of scans).
+
+.. uml::
+
+   participant User
+   participant Client as c
+   participant "API" as a1
+
+   skinparam sequence {
+	  LifeLineBackgroundColor LightGoldenRodYellow
+   }
+
+   User -> c: select\narticle
+   activate c
+
+   c -> a1: GET v1/articles/42/formats
+   activate a1
+   a1 -> c: formats
+   deactivate a1
+   ||20||
+   hnote over c : decide best format
+   ||20||
+   loop eventually retrieve external urls
+      c -> a1: GET external url
+      activate a1
+      a1 -> c: text or image
+      deactivate a1
+   end
+   ||20||
+   hnote over c: transliterate
+   ||20||
+   c -> User: display article
+
+   deactivate c
