@@ -10,15 +10,18 @@ A reference implementation of a client of the M-SALT API.
 Initialization
 ==============
 
+The user navigates to the SALT-Portal and starts the client application.
+
 The client initializes itself, gets a list of known active APIs, and calls the
 :http:get:`/v1` endpoint of each known API to get the API status and further
 information.
 
 .. uml::
+   :align: center
+   :caption: Diagram of API calls for client initialization.
 
-   participant User
+   participant User as u
    participant Client as c
-   participant Portal as s
    participant "API 1" as a1
    participant "API 2" as a2
    participant "API 3" as a3
@@ -27,20 +30,17 @@ information.
 	  LifeLineBackgroundColor LightGoldenRodYellow
    }
 
-   User -> c: open client\nin browser
+   u -> c: navigate
    activate c
 
-   c -> s: GET /api-list.json
-   activate s
-   note over s: list contains:\nAPI 1, API 2, and API 3
-   s -> c: API list
-   deactivate s
+   c -> c: GET list of\nknown APIs
+   note over c: list contains:\nAPI 1, API 2, and API 3
 
-   c -> a1: GET v1
+   c -> a1: GET /v1
    activate a1
-   c -> a2: GET v1
+   c -> a2: GET /v1
    activate a2
-   c -> a3: GET v1
+   c -> a3: GET /v1
    activate a3
 
    note over a2
@@ -50,15 +50,15 @@ information.
 
    a2 -> c: info
    deactivate a2
-   c -> User: show\ndictionary
+   c -> u: show info
 
    a3 -> c: info
    deactivate a3
-   c -> User: show\ndictionary
+   c -> u: show info
 
    a1 -> c: info
    deactivate a1
-   c -> User: show\ndictionary
+   c -> u: show info
    deactivate c
 
 
@@ -73,8 +73,10 @@ the answers received and displays them to the user.  Transliteration occurs only
 if necessary.
 
 .. uml::
+   :align: center
+   :caption: Diagram of API calls for a headword search.
 
-   participant User
+   participant User as u
    participant Client as c
    participant "API 1" as a1
    participant "API 2" as a2
@@ -84,32 +86,32 @@ if necessary.
 	  LifeLineBackgroundColor LightGoldenRodYellow
    }
 
-   User -> c: search\nheadword
+   u -> c: search\nheadword
    activate c
    ||20||
    hnote over c: transliterate (3x)
    ||20||
-   c -> a1: GET v1/headwords
+   c -> a1: GET /v1/headwords
    activate a1
-   c -> a2: GET v1/headwords
+   c -> a2: GET /v1/headwords
    activate a2
-   c -> a3: GET v1/headwords
+   c -> a3: GET /v1/headwords
    activate a3
    ||40||
    a1 -> c: headwords
    deactivate a1
    hnote over c: transliterate
-   c -> User: display\nheadwords
+   c -> u: show\nheadwords
 
    a3 -> c: headwords
    deactivate a3
    hnote over c: transliterate
-   c -> User: display\nheadwords
+   c -> u: show\nheadwords
 
    a2 -> c: headwords
    deactivate a2
    hnote over c: transliterate
-   c -> User: display\nheadwords
+   c -> u: show\nheadwords
 
    deactivate c
 
@@ -127,8 +129,10 @@ article if necessary.  The client allows the user to page through articles
 retrieved in multiple parts (eg. as a series of scans).
 
 .. uml::
+   :align: center
+   :caption: Diagram of API calls for article retrieval.
 
-   participant User
+   participant User as u
    participant Client as c
    participant "API" as a1
 
@@ -136,10 +140,10 @@ retrieved in multiple parts (eg. as a series of scans).
 	  LifeLineBackgroundColor LightGoldenRodYellow
    }
 
-   User -> c: select\narticle
+   u -> c: select\narticle
    activate c
 
-   c -> a1: GET v1/articles/42/formats
+   c -> a1: GET /v1/articles/42/formats
    activate a1
    a1 -> c: formats
    deactivate a1
@@ -155,6 +159,6 @@ retrieved in multiple parts (eg. as a series of scans).
    ||20||
    hnote over c: transliterate
    ||20||
-   c -> User: display article
+   c -> u: show\narticle
 
    deactivate c

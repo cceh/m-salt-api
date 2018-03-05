@@ -86,7 +86,8 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">M-SALT API 0.1 Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#concepts">Concepts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api.html#overview">Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api.html#overview-of-endpoints">Overview of Endpoints</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api.html#transliterations">Transliterations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api.html#embedded-html">Embedded HTML</a></li>
 </ul>
@@ -170,13 +171,15 @@
 <p>A reference implementation of a client of the M-SALT API.</p>
 <div class="section" id="initialization">
 <span id="seq-init"></span><h2>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h2>
+<p>The user navigates to the SALT-Portal and starts the client application.</p>
 <p>The client initializes itself, gets a list of known active APIs, and calls the
 <a class="reference internal" href="api.html#get--v1" title="GET /v1"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1</span></code></a> endpoint of each known API to get the API status and further
 information.</p>
+<div class="figure align-center" id="id1">
 <p class="plantuml">
-<img src="_images/plantuml-1ba7433ac28dc62675f7c79cc8ef85ee8e9a3b6e.png" alt="participant User
+<object data="_images/plantuml-64457edd473d4a25d215b0e357f72982a25856d2.svg" type="image/svg+xml" style="width:373px;height:555px;">
+<img src="_images/plantuml-64457edd473d4a25d215b0e357f72982a25856d2.png" alt="participant User as u
 participant Client as c
-participant Portal as s
 participant &quot;API 1&quot; as a1
 participant &quot;API 2&quot; as a2
 participant &quot;API 3&quot; as a3
@@ -185,20 +188,17 @@ skinparam sequence {
        LifeLineBackgroundColor LightGoldenRodYellow
 }
 
-User -&gt; c: open client\nin browser
+u -&gt; c: navigate
 activate c
 
-c -&gt; s: GET /api-list.json
-activate s
-note over s: list contains:\nAPI 1, API 2, and API 3
-s -&gt; c: API list
-deactivate s
+c -&gt; c: GET list of\nknown APIs
+note over c: list contains:\nAPI 1, API 2, and API 3
 
-c -&gt; a1: GET v1
+c -&gt; a1: GET /v1
 activate a1
-c -&gt; a2: GET v1
+c -&gt; a2: GET /v1
 activate a2
-c -&gt; a3: GET v1
+c -&gt; a3: GET /v1
 activate a3
 
 note over a2
@@ -208,17 +208,20 @@ end note
 
 a2 -&gt; c: info
 deactivate a2
-c -&gt; User: show\ndictionary
+c -&gt; u: show info
 
 a3 -&gt; c: info
 deactivate a3
-c -&gt; User: show\ndictionary
+c -&gt; u: show info
 
 a1 -&gt; c: info
 deactivate a1
-c -&gt; User: show\ndictionary
+c -&gt; u: show info
 deactivate c" />
-</p>
+
+</object></p>
+<p class="caption"><span class="caption-text">Diagram of API calls for client initialization.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
 </div>
 <div class="section" id="headword-search">
 <span id="seq-search"></span><h2>Headword Search<a class="headerlink" href="#headword-search" title="Permalink to this headline">¶</a></h2>
@@ -226,8 +229,10 @@ deactivate c" />
 API and calls their <a class="reference internal" href="api.html#get--v1-headwords" title="GET /v1/headwords"><code class="xref http http-get docutils literal"><span class="pre">GET</span> <span class="pre">/v1/headwords</span></code></a> endpoints. It then transliterates
 the answers received and displays them to the user.  Transliteration occurs only
 if necessary.</p>
+<div class="figure align-center" id="id2">
 <p class="plantuml">
-<img src="_images/plantuml-8f5d0c47b402cf452edf91a816a746855d63b3af.png" alt="participant User
+<object data="_images/plantuml-8ab44716097e17e20e7295c98ec8d5702f0670c2.svg" type="image/svg+xml" style="width:438px;height:662px;">
+<img src="_images/plantuml-8ab44716097e17e20e7295c98ec8d5702f0670c2.png" alt="participant User as u
 participant Client as c
 participant &quot;API 1&quot; as a1
 participant &quot;API 2&quot; as a2
@@ -237,35 +242,38 @@ skinparam sequence {
        LifeLineBackgroundColor LightGoldenRodYellow
 }
 
-User -&gt; c: search\nheadword
+u -&gt; c: search\nheadword
 activate c
 ||20||
 hnote over c: transliterate (3x)
 ||20||
-c -&gt; a1: GET v1/headwords
+c -&gt; a1: GET /v1/headwords
 activate a1
-c -&gt; a2: GET v1/headwords
+c -&gt; a2: GET /v1/headwords
 activate a2
-c -&gt; a3: GET v1/headwords
+c -&gt; a3: GET /v1/headwords
 activate a3
 ||40||
 a1 -&gt; c: headwords
 deactivate a1
 hnote over c: transliterate
-c -&gt; User: display\nheadwords
+c -&gt; u: show\nheadwords
 
 a3 -&gt; c: headwords
 deactivate a3
 hnote over c: transliterate
-c -&gt; User: display\nheadwords
+c -&gt; u: show\nheadwords
 
 a2 -&gt; c: headwords
 deactivate a2
 hnote over c: transliterate
-c -&gt; User: display\nheadwords
+c -&gt; u: show\nheadwords
 
 deactivate c" />
-</p>
+
+</object></p>
+<p class="caption"><span class="caption-text">Diagram of API calls for a headword search.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
 </div>
 <div class="section" id="article-retrieval">
 <span id="seq-article"></span><h2>Article Retrieval<a class="headerlink" href="#article-retrieval" title="Permalink to this headline">¶</a></h2>
@@ -275,8 +283,10 @@ then retrieves the article text (if not already embedded in the response) and
 displays it to the user.  The client transliterates marked sections of the
 article if necessary.  The client allows the user to page through articles
 retrieved in multiple parts (eg. as a series of scans).</p>
+<div class="figure align-center" id="id3">
 <p class="plantuml">
-<img src="_images/plantuml-2d900200af860ffb52d9d74e27006f9c3dafd45d.png" alt="participant User
+<object data="_images/plantuml-4c43a0c2f195abbe781726e72b98e02941c63668.svg" type="image/svg+xml" style="width:386px;height:481px;">
+<img src="_images/plantuml-4c43a0c2f195abbe781726e72b98e02941c63668.png" alt="participant User as u
 participant Client as c
 participant &quot;API&quot; as a1
 
@@ -284,10 +294,10 @@ skinparam sequence {
        LifeLineBackgroundColor LightGoldenRodYellow
 }
 
-User -&gt; c: select\narticle
+u -&gt; c: select\narticle
 activate c
 
-c -&gt; a1: GET v1/articles/42/formats
+c -&gt; a1: GET /v1/articles/42/formats
 activate a1
 a1 -&gt; c: formats
 deactivate a1
@@ -303,10 +313,13 @@ end
 ||20||
 hnote over c: transliterate
 ||20||
-c -&gt; User: display article
+c -&gt; u: show\narticle
 
 deactivate c" />
-</p>
+
+</object></p>
+<p class="caption"><span class="caption-text">Diagram of API calls for article retrieval.</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
 </div>
 </div>
 

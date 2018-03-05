@@ -8,7 +8,7 @@ API
 ===
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    api
 
@@ -17,7 +17,7 @@ Client
 ======
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    client
 

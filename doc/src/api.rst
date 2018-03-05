@@ -7,46 +7,129 @@ South Asian languages.
 
 .. warning:: This API is not yet finalized!
 
+.. TODO: Handle inter-article references in dictionaries.
 
-Concepts
+
+Overview
 ========
 
-This API returns **articles** and **headwords**.
-
-An article is the atomic unit of content of the dictionary.  An article can have
-one or more headwords.
+An **article** is the atomic unit of content of a dictionary.  An article can
+have one or more **headwords.** The article may be available in different
+**formats,** eg. as fully marked up TEI, or as a series of scanned images.  The
+article may also be available in different :ref:`transliterations <t13n>`.
 
 .. uml::
    :align: center
+   :caption: Example of an article with its relations.
 
-   skinparam rectangle {
-      roundCorner<<Concept>> 25
+   skinparam ObjectAttributeFontSize 12
+
+   object "headword" as h1 {
+     अ-हिंस
+   }
+   object "headword" as h2 {
+     अ-हिंसत्
+   }
+   object "headword" as h3 {
+     अ-हिंसा
+   }
+   object "article" as a
+   object "format" as f1 {
+      HTML Deva
+   }
+   object "format" as f2 {
+      HTML Latin
+   }
+   object "format" as f3 {
+      TEI
+   }
+   object "format" as f4 {
+      Set of Images
    }
 
-   usecase headword1 as h1
-   usecase headword2 as h2
-   usecase headword3 as h3
-   usecase "..."     as h4
-   usecase "\narticle\n"   as a
+   h1 -- a
+   h2 -- a
+   h3 -- a
+   a  -- f1
+   a  -- f2
+   a  -- f3
+   a  -- f4
 
-   h1 --> a
-   h2 --> a
-   h3 --> a
-   h4 --> a
-
-
-The article may be available in many different formats, eg. as fully marked up
-TEI, or as a series of scanned images.
-
-The article may also be available in Devanagari or in a Latin transliteration,
-eg. SLP1 or Harvard-Kyoto.
-
-The relation between articles and headwords is 1:N.  A headword cannot point to
-more than one article but more than one headword may point to one article.
 
 The API is designed to allow a client to search multiple dictionaries at once.
+See :ref:`Headword Search <seq-search>`.
 
 All responses of this API are in JSON format.
+
+
+Overview of Endpoints
+---------------------
+
+This is an overview of the API structure, with all endpoints and the respective
+response classes.
+
+.. uml::
+   :align: center
+   :caption: Overview of the API.
+
+   hide stereotype
+   hide empty methods
+
+   interface "[[../api.html#get--v1 v1]]" as info <<endpoint>> {
+   Information
+   -- http --
+   info get ()
+   }
+
+   interface "[[../api.html#get--v1-headwords headwords]]" as h <<endpoint>> {
+   List of headwords and search
+   -- http --
+   headwords get ()
+   }
+
+   interface "[[../api.html#get--v1-headwords-(id) (id)]]" as hi <<endpoint>> {
+   Headword
+   -- http --
+   headwords get ()
+   }
+
+   interface "[[../api.html#get--v1-headwords-(id)-context context]]" as hic <<endpoint>> {
+   Context of a headword
+   -- http --
+   headwords get ()
+   }
+
+   interface "[[../api.html#get--v1-articles articles]]" as a <<endpoint>> {
+   List of articles
+   -- http --
+   articles get ()
+   }
+
+   interface "[[../api.html#get--v1-articles-(id) (id)]]" as ai <<endpoint>> {
+   Article
+   -- http --
+   articles get ()
+   }
+
+   interface "[[../api.html#get--v1-articles-(id)-formats formats]]" as aif <<endpoint>> {
+   List of article formats
+   -- http --
+   formats get ()
+   }
+
+   interface "[[../api.html#get--v1-articles-(id)-headwords headwords]]" as aih <<endpoint>> {
+   List of article headwords
+   -- http --
+   headwords get ()
+   }
+
+   info --> h
+   info --> a
+   h   --> hi
+   hi  --> hic
+   a   --> ai
+   ai  --> aif
+   ai  --> aih
 
 
 .. _t13n:
@@ -94,12 +177,13 @@ See also:
  - https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry
 
 .. TODO: or should we use an alternative method using the *t* extension?
-   Downside: the transliterations we use are not registered with IANA.
+   Downside: the transliterations we use are not registered with IANA so the
+   m0-tag would be invalid.  Compare this with the x-tag, which is supposed to
+   be private use.
 
-    - sa-Latn-t-sa-deva-m0-slp1
-
-    - :RFC:`6497`
-    - http://cldr.unicode.org/index/cldr-spec/transliteration-guidelines#Indic
+   - sa-Latn-t-sa-deva-m0-slp1
+   - :RFC:`6497`
+   - http://cldr.unicode.org/index/cldr-spec/transliteration-guidelines#Indic
 
 
 .. _embed:
@@ -532,10 +616,10 @@ Endpoints
    may save the client one trip to the server.
 
    The `embeddable` parameter SHOULD be true if the resource (or the element
-   pointed to by `root`) is embeddable, eg.:
+   pointed to by `root`) is embeddable, eg. if the resource
 
-     - the resource contains only the article proper,
-     - it is self-contained HTML
+     - contains only the article proper and
+     - is self-contained HTML,
 
    but it MUST NOT be true if the resource is not embeddable.
 

@@ -87,7 +87,8 @@
             
               <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">M-SALT API 0.1 Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#concepts">Concepts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview-of-endpoints">Overview of Endpoints</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#transliterations">Transliterations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#embedded-html">Embedded HTML</a></li>
 </ul>
@@ -174,37 +175,124 @@ South Asian languages.</p>
 <p class="first admonition-title">Warning</p>
 <p class="last">This API is not yet finalized!</p>
 </div>
-<div class="section" id="concepts">
-<h2>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">¶</a></h2>
-<p>This API returns <strong>articles</strong> and <strong>headwords</strong>.</p>
-<p>An article is the atomic unit of content of the dictionary.  An article can have
-one or more headwords.</p>
-<div class="figure align-center">
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>An <strong>article</strong> is the atomic unit of content of a dictionary.  An article can
+have one or more <strong>headwords.</strong> The article may be available in different
+<strong>formats,</strong> eg. as fully marked up TEI, or as a series of scanned images.  The
+article may also be available in different <a class="reference internal" href="#t13n"><span class="std std-ref">transliterations</span></a>.</p>
+<div class="figure align-center" id="id1">
 <p class="plantuml">
-<img src="_images/plantuml-7936d58a99a5bc7ced2585604029117085bec758.png" alt="skinparam rectangle {
-   roundCorner&lt;&lt;Concept&gt;&gt; 25
+<object data="_images/plantuml-81fb81c0111c2322087d5485a498debae835e60b.svg" type="image/svg+xml" style="width:433px;height:252px;">
+<img src="_images/plantuml-81fb81c0111c2322087d5485a498debae835e60b.png" alt="skinparam ObjectAttributeFontSize 12
+
+object &quot;headword&quot; as h1 {
+  अ-हिंस
+}
+object &quot;headword&quot; as h2 {
+  अ-हिंसत्
+}
+object &quot;headword&quot; as h3 {
+  अ-हिंसा
+}
+object &quot;article&quot; as a
+object &quot;format&quot; as f1 {
+   HTML Deva
+}
+object &quot;format&quot; as f2 {
+   HTML Latin
+}
+object &quot;format&quot; as f3 {
+   TEI
+}
+object &quot;format&quot; as f4 {
+   Set of Images
 }
 
-usecase headword1 as h1
-usecase headword2 as h2
-usecase headword3 as h3
-usecase &quot;...&quot;     as h4
-usecase &quot;\narticle\n&quot;   as a
+h1 -- a
+h2 -- a
+h3 -- a
+a  -- f1
+a  -- f2
+a  -- f3
+a  -- f4" />
 
-h1 --&gt; a
-h2 --&gt; a
-h3 --&gt; a
-h4 --&gt; a" />
-</p>
+</object></p>
+<p class="caption"><span class="caption-text">Example of an article with its relations.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
-<p>The article may be available in many different formats, eg. as fully marked up
-TEI, or as a series of scanned images.</p>
-<p>The article may also be available in Devanagari or in a Latin transliteration,
-eg. SLP1 or Harvard-Kyoto.</p>
-<p>The relation between articles and headwords is 1:N.  A headword cannot point to
-more than one article but more than one headword may point to one article.</p>
-<p>The API is designed to allow a client to search multiple dictionaries at once.</p>
+<p>The API is designed to allow a client to search multiple dictionaries at once.
+See <a class="reference internal" href="client.html#seq-search"><span class="std std-ref">Headword Search</span></a>.</p>
 <p>All responses of this API are in JSON format.</p>
+<div class="section" id="overview-of-endpoints">
+<h3>Overview of Endpoints<a class="headerlink" href="#overview-of-endpoints" title="Permalink to this headline">¶</a></h3>
+<p>This is an overview of the API structure, with all endpoints and the respective
+response classes.</p>
+<div class="figure align-center" id="id2">
+<p class="plantuml">
+<object data="_images/plantuml-18185cb8a03c4336f2ae56b1ed835a0e58e7cfd9.svg" type="image/svg+xml" style="width:536px;height:527px;">
+<img src="_images/plantuml-18185cb8a03c4336f2ae56b1ed835a0e58e7cfd9.png" alt="hide stereotype
+hide empty methods
+
+interface &quot;[[../api.html#get--v1 v1]]&quot; as info &lt;&lt;endpoint&gt;&gt; {
+Information
+-- http --
+info get ()
+}
+
+interface &quot;[[../api.html#get--v1-headwords headwords]]&quot; as h &lt;&lt;endpoint&gt;&gt; {
+List of headwords and search
+-- http --
+headwords get ()
+}
+
+interface &quot;[[../api.html#get--v1-headwords-(id) (id)]]&quot; as hi &lt;&lt;endpoint&gt;&gt; {
+Headword
+-- http --
+headwords get ()
+}
+
+interface &quot;[[../api.html#get--v1-headwords-(id)-context context]]&quot; as hic &lt;&lt;endpoint&gt;&gt; {
+Context of a headword
+-- http --
+headwords get ()
+}
+
+interface &quot;[[../api.html#get--v1-articles articles]]&quot; as a &lt;&lt;endpoint&gt;&gt; {
+List of articles
+-- http --
+articles get ()
+}
+
+interface &quot;[[../api.html#get--v1-articles-(id) (id)]]&quot; as ai &lt;&lt;endpoint&gt;&gt; {
+Article
+-- http --
+articles get ()
+}
+
+interface &quot;[[../api.html#get--v1-articles-(id)-formats formats]]&quot; as aif &lt;&lt;endpoint&gt;&gt; {
+List of article formats
+-- http --
+formats get ()
+}
+
+interface &quot;[[../api.html#get--v1-articles-(id)-headwords headwords]]&quot; as aih &lt;&lt;endpoint&gt;&gt; {
+List of article headwords
+-- http --
+headwords get ()
+}
+
+info --&gt; h
+info --&gt; a
+h   --&gt; hi
+hi  --&gt; hic
+a   --&gt; ai
+ai  --&gt; aif
+ai  --&gt; aih" />
+
+</object></p>
+<p class="caption"><span class="caption-text">Overview of the API.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+</div>
 <div class="section" id="transliterations">
 <span id="t13n"></span><h3>Transliterations<a class="headerlink" href="#transliterations" title="Permalink to this headline">¶</a></h3>
 <p>Transliteration (t13n) is the act of representing Devanagari script in Latin
@@ -824,11 +912,11 @@ indicate that the article HTML has been included literally in the <cite>text</ci
 parameter instead of being referenced by URL.  Including the article’s text
 may save the client one trip to the server.</p>
 <p>The <cite>embeddable</cite> parameter SHOULD be true if the resource (or the element
-pointed to by <cite>root</cite>) is embeddable, eg.:</p>
+pointed to by <cite>root</cite>) is embeddable, eg. if the resource</p>
 <blockquote>
 <div><ul class="simple">
-<li>the resource contains only the article proper,</li>
-<li>it is self-contained HTML</li>
+<li>contains only the article proper and</li>
+<li>is self-contained HTML,</li>
 </ul>
 </div></blockquote>
 <p>but it MUST NOT be true if the resource is not embeddable.</p>
